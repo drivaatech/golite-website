@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Short title: browser "Headers and footers" in Print uses <title> in the PDF margin -->
+<title>INV-0326-001</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1419;
+    --muted:#5c6670;
+    --rule:#e6e9ec;
+    --accent:#214E32;
+    --paper:#fff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:'DM Sans',system-ui,sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:#f0f2f5;
+    line-height:1.5;
+  }
+  .sheet{
+    max-width:820px;
+    margin:32px auto;
+    background:var(--paper);
+    box-shadow:0 8px 40px rgba(0,0,0,.08);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .sheet-inner{padding:48px 56px 56px}
+  @media print{
+    @page{
+      size:A4;
+      margin:14mm 12mm;
+    }
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sheet{margin:0;box-shadow:none;max-width:none}
+    .sheet-inner{padding:24px 32px}
+    .no-print{display:none!important}
+  }
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:24px;
+    margin-bottom:28px;
+  }
+  .brand{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+  .doc-title{
+    font-size:11px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 6px;
+  }
+  .inv-num{font-size:22px;font-weight:700;font-family:'DM Mono',monospace}
+  .meta-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px 32px;
+    font-size:13px;
+    margin-top:8px;
+  }
+  .meta-grid dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin:0}
+  .meta-grid dd{margin:2px 0 0;font-weight:600;font-family:'DM Mono',monospace}
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:32px;
+    margin-bottom:32px;
+  }
+  @media (max-width:640px){.two-col{grid-template-columns:1fr}}
+  .block h3{
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 12px;
+    font-weight:600;
+  }
+  .block p{margin:0 0 6px;font-size:13px}
+  .block .legal{font-weight:700;font-size:14px;color:var(--ink)}
+  .gst{font-family:'DM Mono',monospace;font-size:12px;margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{
+    text-align:left;
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:12px 10px;
+    border-bottom:2px solid var(--ink);
+  }
+  thead th:nth-child(2),
+  thead th:nth-child(3),
+  thead th:nth-child(4){text-align:right}
+  tbody td{
+    padding:14px 10px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  tbody td:nth-child(2),
+  tbody td:nth-child(3),
+  tbody td:nth-child(4){text-align:right;font-family:'DM Mono',monospace}
+  .totals{margin-top:8px;max-width:320px;margin-left:auto}
+  .totals-row{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    font-size:13px;
+  }
+  .totals-row.total{
+    border-top:2px solid var(--ink);
+    margin-top:8px;
+    padding-top:14px;
+    font-size:18px;
+    font-weight:700;
+  }
+  .terms{
+    margin-top:40px;
+    padding-top:24px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:var(--muted);
+  }
+  .terms h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+  .signatures{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+    align-items:start;
+  }
+  .sign-col{
+    font-size:12px;
+    color:var(--muted);
+    min-width:0;
+  }
+  .sign-col > strong{
+    display:block;
+    color:var(--ink);
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .sign-meta{
+    margin:0 0 14px;
+    font-size:12px;
+    line-height:1.45;
+    color:var(--muted);
+  }
+  /* Name sits on the rule (baseline just above the line) */
+  .sign-field{
+    border-bottom:1px solid var(--ink);
+    min-height:26px;
+    display:flex;
+    align-items:flex-end;
+    padding-bottom:3px;
+    margin:0;
+  }
+  .sign-name{
+    font-family:'DM Sans',system-ui,sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.04em;
+    color:var(--ink);
+    line-height:1.2;
+  }
+  .sign-placeholder{
+    font-size:12px;
+    color:var(--muted);
+    font-style:italic;
+    font-weight:400;
+  }
+  .sig-caption{
+    margin:8px 0 0;
+    font-size:11px;
+    color:var(--muted);
+  }
+  .print-hint{
+    max-width:820px;
+    margin:24px auto 0;
+    padding:16px 20px;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.55;
+    background:color-mix(in srgb, var(--accent) 6%, transparent);
+    border:1px solid var(--rule);
+    border-radius:6px;
+  }
+  .print-hint p{margin:0 0 10px}
+</style>
+</head>
+<body>
+  <div class="print-hint no-print">
+    <p><strong>PDF without extra text in the margins:</strong> Browsers add date, time, and the page title when <em>Headers and footers</em> is on.</p>
+    <p>When you print or save as PDF: open <strong>More settings</strong> (Chrome / Edge) or <strong>Show details</strong> (Safari) and <strong>turn off Headers and footers</strong> (uncheck the option). Then save as PDF.</p>
+    <p style="margin-bottom:0;opacity:.85">The document title is kept short so any stray header is minimal.</p>
+  </div>
+
+  <article class="sheet">
+    <div class="sheet-inner">
+      <header class="top">
+        <div>
+          <p class="doc-title">Tax invoice</p>
+          <div class="brand">Invoice</div>
+        </div>
+        <div style="text-align:right">
+          <p class="doc-title">Invoice no.</p>
+          <p class="inv-num">INV-0226-001</p>
+          <dl class="meta-grid" style="margin-top:16px;text-align:left">
+            <div>
+              <dt>Date</dt>
+              <dd>01/02/2026</dd>
+            </div>
+            <div>
+              <dt>Due date</dt>
+              <dd>20/02/2026</dd>
+            </div>
+            <div>
+              <dt>Order no.</dt>
+              <dd>001</dd>
+            </div>
+            <div>
+              <dt>Currency</dt>
+              <dd>INR</dd>
+            </div>
+          </dl>
+        </div>
+      </header>
+
+      <section class="two-col">
+        <div class="block">
+          <h3>Issuer (From)</h3>
+          <p class="legal">Ashish Shetty</p>
+          <p style="color:var(--muted);font-size:12px">Software consultancy services</p>
+        </div>
+        <div class="block">
+          <h3>Bill to (Client)</h3>
+          <p class="legal">DRIVAA RETAIL UTILITY NETWORK PRIVATE LIMITED</p>
+          <p><strong>Trade name:</strong> DRIVAA</p>
+          <p><strong>Constitution:</strong> Private Limited Company</p>
+          <p class="gst"><strong>GSTIN:</strong> 27AAMCD0064A1Z3</p>
+        </div>
+      </section>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:52px">Qty</th>
+            <th>Description</th>
+            <th style="width:120px">Unit price</th>
+            <th style="width:140px">Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Software Consultancy</td>
+            <td>40,000.00</td>
+            <td>40,000.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <div class="totals-row">
+          <span>Subtotal</span>
+          <span>₹ 40,000.00</span>
+        </div>
+        <div class="totals-row">
+          <span>Taxes</span>
+          <span>—</span>
+        </div>
+        <div class="totals-row total">
+          <span>Total</span>
+          <span>₹ 40,000.00</span>
+        </div>
+      </div>
+
+      <section class="terms">
+        <h4>Terms &amp; conditions</h4>
+        <p>Payment due by the due date above unless otherwise agreed in writing. This invoice is issued for professional services as described. For queries, contact the issuer.</p>
+      </section>
+
+      <section class="signatures">
+        <div class="sign-col">
+          <strong>Issuer</strong>
+          <p class="sign-meta">Ashish Shetty</p>
+          <div class="sign-field">
+            <span class="sign-name">ASHISH SHETTY</span>
+          </div>
+          <p class="sig-caption">Authorised signatory</p>
+        </div>
+        <div class="sign-col">
+          <strong>Recipient — DRIVAA</strong>
+          <p class="sign-meta">DRIVAA Retail Utility Network Private Limited</p>
+          <div class="sign-field">
+            <span class="sign-placeholder">Signature</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </article>
+</body>
+</html>

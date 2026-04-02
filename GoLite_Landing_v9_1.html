@@ -1,0 +1,3625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Lite — Carry Memories Not Baggage.</title>
+<link rel="icon" href="assets/go-lite-mark-128w.png" type="image/png" sizes="128x128">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&amp;family=DM+Sans:wght@300;400;500;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --shell:min(1220px, calc(100vw - 32px));
+  --radius-xl:34px;
+  --radius-lg:24px;
+  --radius-md:18px;
+  --shadow:0 24px 70px rgba(0,0,0,.12);
+  --anim:cubic-bezier(.22,1,.36,1);
+}
+
+*,
+*::before,
+*::after{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  font-family:'DM Sans',sans-serif;
+  background:var(--f0);
+  color:var(--ch);
+  overflow-x:hidden;
+  transition:background .45s ease,color .45s ease;
+}
+
+body[data-theme="obsidian"]{
+  --g:#CBA45A;--gd:#A98236;--gl:#1B1710;--g100:#44331A;
+  --b:#0D0D0F;--bl:#18181C;
+  --blk:#F7ECDD;--ch:#E8D8C0;--body:#D3C1A5;--muted:#B29D81;
+  --f0:#070708;--f1:#0D0D10;--f2:#131318;
+  --wh:#111215;--rule:#2A241A;
+  --am:#D8B26A;--aml:#1B1510;
+  --rd:#C16C52;--rdl:#221514;
+  --surface:rgba(255,255,255,.04);
+  --glass:rgba(255,255,255,.06);
+  --hero-grad:linear-gradient(145deg,#0F1014 0%,#080809 48%,#17110D 100%);
+  --hero-glow-1:rgba(203,164,90,.18);
+  --hero-glow-2:rgba(255,255,255,.06);
+}
+
+body[data-theme="verdant"]{
+  --g:#214E32;--gd:#173823;--gl:#EEF6EA;--g100:#D6E5CB;
+  --b:#F8FAF4;--bl:#EAF2E2;
+  --blk:#183121;--ch:#243A2C;--body:#405847;--muted:#637464;
+  --f0:#FCFCF7;--f1:#F3F7EE;--f2:#EDF2E6;
+  --wh:#FFFFFF;--rule:#D9E2D1;
+  --am:#D4A14C;--aml:#FCF0DE;
+  --rd:#BC6250;--rdl:#FCEEEA;
+  --surface:rgba(255,255,255,.74);
+  --glass:rgba(255,255,255,.84);
+  --hero-grad:linear-gradient(145deg,#FFFFFF 0%,#F0F5E8 55%,#EEF0E2 100%);
+  --hero-glow-1:rgba(33,78,50,.1);
+  --hero-glow-2:rgba(212,161,76,.12);
+}
+
+body[data-theme="ivory"]{
+  --g:#1F4D43;--gd:#163830;--gl:#EEF4F1;--g100:#D2E0DA;
+  --b:#3A639F;--bl:#E8EEF8;
+  --blk:#193228;--ch:#29463E;--body:#50655F;--muted:#6F7A76;
+  --f0:#F6EFE3;--f1:#F0E8DA;--f2:#E9E1D2;
+  --wh:#FFFDF8;--rule:#DDD2C0;
+  --am:#C99D53;--aml:#FCF1DE;
+  --rd:#B96454;--rdl:#FCEEEA;
+  --surface:rgba(255,253,248,.72);
+  --glass:rgba(255,253,248,.86);
+  --hero-grad:linear-gradient(145deg,#FBF5EB 0%,#F0E6D8 55%,#E4EBDD 100%);
+  --hero-glow-1:rgba(31,77,67,.12);
+  --hero-glow-2:rgba(58,99,159,.10);
+}
+
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  inset:auto;
+  pointer-events:none;
+  z-index:0;
+  filter:blur(44px);
+  transition:background .45s ease;
+}
+
+body::before{
+  width:320px;
+  height:320px;
+  top:-120px;
+  right:-80px;
+  background:radial-gradient(circle,var(--hero-glow-1) 0%,transparent 70%);
+}
+
+body::after{
+  width:280px;
+  height:280px;
+  left:-100px;
+  bottom:-80px;
+  background:radial-gradient(circle,var(--hero-glow-2) 0%,transparent 70%);
+}
+
+.page{position:relative;z-index:1}
+.shell{width:var(--shell);margin:0 auto}
+
+.reveal{
+  opacity:0;
+  transform:translateY(26px);
+  transition:opacity .8s var(--anim),transform .8s var(--anim);
+}
+.reveal.visible{opacity:1;transform:none}
+.delay-1{transition-delay:.08s}.delay-2{transition-delay:.16s}.delay-3{transition-delay:.24s}
+
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--g);
+}
+.eyebrow::before{
+  content:"";
+  width:20px;
+  height:1.5px;
+  background:currentColor;
+}
+
+.headline{
+  margin:14px 0 0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,6vw,5.8rem);
+  line-height:.95;
+  letter-spacing:-.04em;
+  color:var(--blk);
+}
+
+.headline em,
+.section-title em{font-style:italic;color:var(--g)}
+
+.section-title{
+  margin:14px 0 0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.2rem,4vw,4rem);
+  line-height:1;
+  letter-spacing:-.035em;
+  color:var(--blk);
+}
+
+.lead{
+  margin:16px 0 0;
+  max-width:60ch;
+  color:var(--muted);
+  line-height:1.85;
+}
+
+.panel{
+  background:var(--glass);
+  border:1px solid var(--rule);
+  border-radius:var(--radius-xl);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:color-mix(in srgb, var(--f0) 82%, transparent);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--rule);
+}
+
+.nav-shell{
+  min-height:84px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand img{
+  width:50px;
+  height:50px;
+  object-fit:contain;
+  border-radius:16px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  padding:8px;
+}
+
+.brand-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.55rem;
+  color:var(--blk);
+}
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.nav-links a{
+  color:var(--muted);
+  text-decoration:none;
+  font-size:.95rem;
+}
+
+.nav-links a:hover{color:var(--blk)}
+
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.theme-switch{
+  display:flex;
+  gap:8px;
+  padding:6px;
+  border-radius:999px;
+  border:1px solid var(--rule);
+  background:var(--surface);
+}
+
+.theme-switch button{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  padding:10px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+}
+
+.theme-switch button.active{
+  background:var(--wh);
+  color:var(--blk);
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:50px;
+  padding:0 22px;
+  border-radius:999px;
+  text-decoration:none;
+  transition:transform .22s ease,box-shadow .22s ease,background .22s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--g);color:#fff;box-shadow:0 12px 26px color-mix(in srgb, var(--g) 26%, transparent)}
+.btn-secondary{border:1px solid var(--rule);color:var(--blk);background:transparent}
+
+.hero{
+  padding:48px 0 38px;
+}
+
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  gap:28px;
+  align-items:center;
+}
+
+.hero-copy .lead{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.05rem,1.7vw,1.4rem);
+  font-style:italic;
+  max-width:28ch;
+}
+
+.hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:28px;
+}
+
+.hero-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-top:34px;
+}
+
+.stat{
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--rule);
+  background:var(--surface);
+}
+
+.stat strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.9rem,3vw,2.8rem);
+  line-height:1;
+  color:var(--blk);
+}
+
+.stat span{
+  display:block;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:.9rem;
+  line-height:1.6;
+}
+
+.hero-stage{
+  position:relative;
+  padding:26px;
+  border-radius:36px;
+  background:var(--hero-grad);
+  border:1px solid var(--rule);
+  overflow:hidden;
+  min-height:620px;
+  min-width:0;
+  width:100%;
+}
+
+.hero-stage::before,
+.hero-stage::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+}
+
+.hero-stage::before{
+  width:260px;
+  height:260px;
+  top:-100px;
+  right:-40px;
+  background:radial-gradient(circle,var(--hero-glow-1) 0%,transparent 72%);
+}
+
+.hero-stage::after{
+  width:240px;
+  height:240px;
+  left:-80px;
+  bottom:-100px;
+  background:radial-gradient(circle,var(--hero-glow-2) 0%,transparent 72%);
+}
+
+.hero-stage-top{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.hero-stage-top small{
+  display:block;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.16em;
+}
+
+.hero-stage-top strong{
+  display:block;
+  margin-top:10px;
+  color:var(--blk);
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.35rem,3.8vw,2rem);
+  line-height:1.15;
+  max-width:100%;
+}
+
+.hero-stage-center{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:360px;
+  margin-top:22px;
+  padding:22px clamp(10px,3vw,20px) 28px;
+  border-radius:28px;
+  border:1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--wh) 12%, transparent), transparent);
+  overflow:hidden;
+  isolation:isolate;
+  perspective:880px;
+}
+
+.hero-aurora{
+  position:absolute;
+  inset:-20% -30%;
+  z-index:0;
+  background:
+    radial-gradient(ellipse 45% 35% at 30% 40%, color-mix(in srgb, var(--g) 22%, transparent), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 70% 60%, color-mix(in srgb, var(--am) 14%, transparent), transparent 50%),
+    radial-gradient(ellipse 35% 28% at 55% 30%, rgba(90,140,200,.08), transparent 45%);
+  animation:auroraDrift 14s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+
+.orbit-a,
+.orbit-b{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid color-mix(in srgb, var(--blk) 14%, transparent);
+  pointer-events:none;
+}
+
+.orbit-a{
+  inset:28px;
+  animation:spin 22s linear infinite;
+}
+
+.orbit-b{
+  inset:72px;
+  border-style:dashed;
+  animation:spin-reverse 28s linear infinite;
+  opacity:.85;
+}
+
+.hero-pulse-ring{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(420px,85%);
+  aspect-ratio:2.6/1;
+  transform:translate(-50%,-50%);
+  border:1px solid color-mix(in srgb, var(--g) 35%, transparent);
+  border-radius:50%;
+  animation:pulseRing 5s ease-out infinite;
+  pointer-events:none;
+  z-index:1;
+}
+
+.hero-pulse-ring--delay{
+  animation-delay:2.5s;
+  width:min(460px,92%);
+  opacity:.5;
+}
+
+.hero-logo-wrap{
+  position:relative;
+  z-index:3;
+  width:100%;
+  max-width:min(460px,100%);
+  margin:0 auto;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+
+.hero-logo-wrap::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:45%;
+  width:min(100%,380px);
+  height:140px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse,color-mix(in srgb, var(--g) 24%, transparent) 0%,transparent 70%);
+  filter:blur(28px);
+  z-index:0;
+  animation:glowBreathe 4.5s ease-in-out infinite;
+}
+
+.hero-logo-shimmer{
+  position:absolute;
+  inset:0;
+  border-radius:6px;
+  pointer-events:none;
+  z-index:2;
+  background:linear-gradient(102deg,transparent 0%,transparent 42%,rgba(255,255,255,.72) 50%,transparent 58%,transparent 100%);
+  background-size:220% 100%;
+  background-position:-180% 0;
+  animation:shimmerPass 6.5s ease-in-out infinite;
+  opacity:.28;
+  mix-blend-mode:overlay;
+}
+
+.hero-logo-wrap picture{
+  display:block;
+  width:100%;
+  position:relative;
+  z-index:1;
+}
+
+.hero-logo{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  display:block;
+  transform-origin:50% 60%;
+  animation:heroLogoAlive 6s ease-in-out infinite;
+}
+
+.logo-beam{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent 26%,rgba(255,255,255,.14) 48%,transparent 70%);
+  transform:translateX(-120%);
+  animation:beam 9s ease-in-out infinite;
+  z-index:2;
+  pointer-events:none;
+}
+
+.tagline{
+  background:var(--b);
+  color:var(--blk);
+  padding:18px 0;
+  overflow:hidden;
+}
+
+.tagline-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.tagline-row p{
+  margin:0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1rem,1.7vw,1.3rem);
+  font-style:italic;
+}
+
+.tagline-row p span{color:var(--g)}
+
+.section{
+  padding:92px 0;
+}
+
+.segments-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+  gap:20px;
+  align-items:start;
+}
+
+.segments-intro,
+.pain-intro,
+.corp-copy,
+.how-copy,
+.price-head,
+.testi-head,
+.neat-head{padding:8px 0}
+
+.segments-track{
+  display:grid;
+  gap:14px;
+}
+
+.segment-card{
+  position:relative;
+  padding:24px 24px 24px 84px;
+  border-radius:26px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  overflow:hidden;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+
+.segment-card:hover{transform:translateX(4px);box-shadow:var(--shadow)}
+
+.segment-card::before{
+  content:attr(data-index);
+  position:absolute;
+  left:20px;
+  top:22px;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--blk);
+  background:color-mix(in srgb, var(--g) 18%, transparent);
+  border:1px solid color-mix(in srgb, var(--g) 30%, transparent);
+}
+
+.segment-card h3{
+  margin:0 0 8px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;
+  color:var(--blk);
+}
+
+.segment-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.segment-card .quote{
+  display:block;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--rule);
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1rem;
+  color:var(--body);
+}
+
+.pain-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);
+  gap:20px;
+  align-items:start;
+}
+
+.pain-moments{
+  display:grid;
+  gap:12px;
+}
+
+.pain-card{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:16px;
+  padding:20px;
+  border-radius:24px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+}
+
+.pain-index{
+  width:64px;
+  height:64px;
+  display:grid;
+  place-items:center;
+  border-radius:20px;
+  font-family:'DM Mono',monospace;
+  color:var(--rd);
+  border:1px solid color-mix(in srgb, var(--rd) 24%, transparent);
+  background:var(--rdl);
+}
+
+.pain-card h3{
+  margin:4px 0 8px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;
+  color:var(--blk);
+}
+
+.pain-card p{
+  margin:0;
+  line-height:1.75;
+  color:var(--muted);
+}
+
+.pain-visual{
+  position:sticky;
+  top:110px;
+  padding:24px;
+}
+
+.belt{
+  position:relative;
+  min-height:500px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 20% 18%, color-mix(in srgb, var(--g) 12%, transparent), transparent 32%),
+    linear-gradient(180deg,color-mix(in srgb, var(--wh) 98%, white),color-mix(in srgb, var(--f2) 88%, white));
+  border:1px solid var(--rule);
+  overflow:hidden;
+}
+
+.belt-scene{
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:22px;
+  bottom:178px;
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.belt-scene .scene-shadow{
+  opacity:.32;
+}
+
+.belt-scene .belt-rim{
+  fill:color-mix(in srgb, var(--b) 22%, var(--wh));
+  stroke:color-mix(in srgb, var(--b) 28%, var(--wh));
+  stroke-width:2;
+}
+
+.belt-scene .belt-track{
+  fill:color-mix(in srgb, var(--b) 74%, #0f1013);
+}
+
+.belt-scene .belt-lane{
+  fill:url(#beltLaneGradient);
+}
+
+.belt-scene .belt-slats{
+  fill:url(#beltSlats);
+  opacity:.72;
+}
+
+.belt-scene .bag-body-cream{fill:url(#bagCream)}
+.belt-scene .bag-body-silver{fill:url(#bagSilver)}
+.belt-scene .bag-body-stone{fill:url(#bagStone)}
+.belt-scene .bag-body-dark{fill:url(#bagDark)}
+.belt-scene .bag-stroke{
+  stroke:color-mix(in srgb, var(--b) 18%, transparent);
+  stroke-width:2.2;
+}
+.belt-scene .bag-handle{
+  fill:none;
+  stroke:color-mix(in srgb, var(--am) 76%, var(--g));
+  stroke-width:5;
+  stroke-linecap:round;
+}
+.belt-scene .bag-detail{
+  fill:color-mix(in srgb, var(--g) 24%, transparent);
+}
+.belt-scene .bag-ridge{
+  stroke:rgba(145,152,164,.45);
+  stroke-width:3;
+  stroke-linecap:round;
+}
+
+.belt::before{
+  content:"";
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:54%;
+  height:118px;
+  transform:translateY(-50%);
+  border-radius:999px / 74px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,0) 18%),
+    linear-gradient(180deg,color-mix(in srgb, var(--b) 24%, var(--wh)),color-mix(in srgb, var(--b) 12%, var(--wh)) 46%,color-mix(in srgb, var(--b) 28%, var(--wh)));
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.22),
+    inset 0 -12px 24px rgba(0,0,0,.12),
+    inset 0 0 0 1px rgba(0,0,0,.05);
+}
+
+.belt::after{
+  content:"";
+  position:absolute;
+  left:44px;
+  right:44px;
+  top:54%;
+  height:72px;
+  transform:translateY(-50%);
+  border-radius:999px;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.0) 0 34px,rgba(255,255,255,.14) 34px 48px),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));
+  opacity:.95;
+  animation:beltMove 8s linear infinite;
+}
+
+.belt-bag{
+  position:absolute;
+  top:auto;
+  bottom:132px;
+  width:118px;
+  height:92px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#FFFFFF,#F0F2EB);
+  border:1px solid color-mix(in srgb, var(--rule) 76%, transparent);
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.6);
+  animation:bagRide 9.2s linear infinite;
+  transform:translateX(-220px) translateY(var(--bag-lift, 0)) scale(var(--bag-scale, 1));
+  will-change:transform;
+  z-index:2;
+}
+
+.belt-bag::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-14px;
+  width:42px;
+  height:18px;
+  transform:translateX(-50%);
+  border-radius:18px 18px 0 0;
+  border:3px solid var(--g);
+  border-bottom:0;
+}
+
+.belt-bag::after{
+  content:"";
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:-18px;
+  height:18px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(0,0,0,.18), transparent 72%);
+  filter:blur(4px);
+  z-index:-1;
+}
+
+.belt-bag .bag-accent{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:16px;
+  height:7px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--g) 26%, transparent);
+}
+
+.belt-bag.trolley{
+  --bag-lift:0;
+  --bag-scale:1;
+  border-radius:26px;
+  background:linear-gradient(180deg,#FFF8EF,#EEE8DD);
+}
+
+.belt-bag.trolley::before{
+  width:34px;
+  height:34px;
+  top:-24px;
+  border-radius:18px 18px 0 0;
+}
+
+.belt-bag.trolley .wheel{
+  position:absolute;
+  bottom:-6px;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:var(--blk);
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--g) 16%, transparent);
+}
+
+.belt-bag.trolley .wheel.left{left:20px}
+.belt-bag.trolley .wheel.right{right:20px}
+
+.belt-bag.duffel{
+  --bag-lift:10px;
+  --bag-scale:.94;
+  width:140px;
+  height:76px;
+  border-radius:999px;
+  animation-delay:2.2s;
+  background:linear-gradient(180deg,#F4F8F1,#DCE8D7);
+}
+
+.belt-bag.duffel::before{
+  width:48px;
+  height:22px;
+  top:-18px;
+  border-radius:20px 20px 0 0;
+}
+
+.belt-bag.duffel::after{
+  left:34px;
+  right:34px;
+}
+
+.belt-bag.duffel .strap{
+  position:absolute;
+  left:28px;
+  right:28px;
+  top:16px;
+  height:14px;
+  border-radius:999px;
+  border:3px solid color-mix(in srgb, var(--b) 36%, var(--wh));
+}
+
+.belt-bag.hardshell{
+  --bag-lift:-8px;
+  --bag-scale:.86;
+  width:108px;
+  height:112px;
+  animation-delay:4.4s;
+  background:linear-gradient(180deg,#F4F6FA,#DDE4F1);
+}
+
+.belt-bag.hardshell::before{
+  width:46px;
+}
+
+.belt-bag.hardshell .ridge{
+  position:absolute;
+  top:24px;
+  bottom:22px;
+  width:3px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--b) 20%, transparent);
+}
+
+.belt-bag.hardshell .ridge.r1{left:40px}
+.belt-bag.hardshell .ridge.r2{left:58px}
+.belt-bag.hardshell .ridge.r3{right:58px}
+.belt-bag.hardshell .ridge.r4{right:40px}
+
+.belt-bag.carry{
+  --bag-lift:-14px;
+  --bag-scale:.8;
+  width:92px;
+  height:120px;
+  right:auto;
+  animation-delay:6.4s;
+  background:linear-gradient(180deg,#FFF8F0,#EFE4D8);
+}
+
+.belt-bag.carry::before{
+  width:40px;
+}
+
+.belt-bag.carry .tag{
+  position:absolute;
+  right:18px;
+  top:22px;
+  width:18px;
+  height:34px;
+  border-radius:10px;
+  background:color-mix(in srgb, var(--am) 72%, white);
+}
+
+.pain-summary{
+  position:absolute;
+  left:28px;
+  right:28px;
+  bottom:26px;
+  padding:22px 24px;
+  border-radius:26px;
+  background:var(--gl);
+  border:1px solid var(--g100);
+  z-index:3;
+}
+
+.pain-summary strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;
+  color:var(--gd);
+}
+
+.pain-summary span{
+  display:block;
+  margin-top:6px;
+  color:var(--gd);
+  opacity:.85;
+  line-height:1.7;
+}
+
+.pain-stage{
+  position:relative;
+  min-height:500px;
+  border-radius:30px;
+  overflow:hidden;
+  border:1px solid var(--rule);
+  background:
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--rd) 16%, transparent), transparent 30%),
+    radial-gradient(circle at 84% 20%, color-mix(in srgb, var(--g) 18%, transparent), transparent 34%),
+    linear-gradient(180deg,#17181D 0%, #101115 100%);
+}
+
+.pain-stage::before{
+  content:"";
+  position:absolute;
+  inset:22px 22px 164px;
+  border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.pain-stage-top{
+  position:absolute;
+  top:32px;
+  left:34px;
+  right:34px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  z-index:2;
+}
+
+.pain-stage-top strong{
+  display:block;
+  color:#fff;
+  font-size:1rem;
+}
+
+.pain-stage-top span{
+  display:block;
+  margin-top:6px;
+  color:rgba(255,255,255,.58);
+  font-size:.84rem;
+}
+
+.pain-meter{
+  display:grid;
+  gap:8px;
+  min-width:160px;
+}
+
+.pain-meter small{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.16em;
+  color:rgba(255,255,255,.56);
+}
+
+.pain-meter-track{
+  position:relative;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.pain-meter-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:16%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#EA8A77,#D95447);
+}
+
+.pain-arena{
+  position:absolute;
+  left:34px;
+  right:34px;
+  top:112px;
+  bottom:196px;
+  z-index:2;
+}
+
+.pain-lane{
+  position:absolute;
+  left:0;
+  right:0;
+  top:52%;
+  height:12px;
+  transform:translateY(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,.18) 28%,rgba(255,255,255,.08));
+}
+
+.pain-lane::before{
+  content:"";
+  position:absolute;
+  inset:-18px 0;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+}
+
+.pain-checkpoint{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;
+}
+
+.pain-checkpoint .ring{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:#fff;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 0 0 10px rgba(255,255,255,.02);
+}
+
+.pain-checkpoint label{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:70px;
+  width:max-content;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+  color:rgba(255,255,255,.54);
+}
+
+.pain-checkpoint.active .ring{
+  background:color-mix(in srgb, var(--rd) 26%, transparent);
+  border-color:color-mix(in srgb, var(--rd) 48%, transparent);
+  box-shadow:0 0 0 10px color-mix(in srgb, var(--rd) 14%, transparent);
+}
+
+.pain-checkpoint.resolved .ring{
+  background:color-mix(in srgb, var(--g) 26%, transparent);
+  border-color:color-mix(in srgb, var(--g) 48%, transparent);
+  box-shadow:0 0 0 10px color-mix(in srgb, var(--g) 14%, transparent);
+}
+
+.pain-checkpoint.c1{left:10%}
+.pain-checkpoint.c2{left:28%}
+.pain-checkpoint.c3{left:46%}
+.pain-checkpoint.c4{left:66%}
+.pain-checkpoint.c5{left:84%}
+
+.pain-traveler{
+  position:absolute;
+  left:10%;
+  top:50%;
+  width:92px;
+  height:92px;
+  transform:translate(-50%,-50%);
+  z-index:3;
+}
+
+.pain-avatar{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:92px;
+  height:92px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255,255,255,.28), transparent 28%),
+    linear-gradient(180deg,color-mix(in srgb, var(--rd) 72%, white),color-mix(in srgb, var(--rd) 82%, black));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 18px 36px rgba(0,0,0,.22);
+}
+
+.pain-avatar::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:18px;
+  width:18px;
+  height:18px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:#fff;
+}
+
+.pain-avatar::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  width:34px;
+  height:28px;
+  transform:translateX(-50%);
+  border-radius:20px 20px 16px 16px;
+  background:#fff;
+}
+
+.pain-load{
+  position:absolute;
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  background:linear-gradient(180deg,#FFF4E1,#D9C4A0);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+  opacity:0;
+}
+
+.pain-load::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-8px;
+  width:14px;
+  height:10px;
+  transform:translateX(-50%);
+  border-radius:10px 10px 0 0;
+  border:2px solid #D8B15A;
+  border-bottom:0;
+}
+
+.pain-load.l1{left:-8px;top:18px}
+.pain-load.l2{left:8px;top:58px}
+.pain-load.l3{left:52px;top:2px}
+.pain-load.l4{left:70px;top:48px}
+
+.pain-pulse{
+  position:absolute;
+  left:10%;
+  top:50%;
+  width:0;
+  height:0;
+  pointer-events:none;
+  z-index:2;
+}
+
+.pain-pulse::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:18px;
+  height:18px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:var(--g);
+  box-shadow:0 0 0 10px color-mix(in srgb, var(--g) 18%, transparent);
+}
+
+.pain-pulse::after{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:80px;
+  height:80px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:1px solid color-mix(in srgb, var(--g) 20%, transparent);
+  opacity:.6;
+}
+
+.corporate-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:20px;
+  align-items:start;
+}
+
+.corp-feature-list{
+  display:grid;
+  gap:12px;
+  margin-top:24px;
+}
+
+.corp-feature{
+  display:grid;
+  grid-template-columns:56px 1fr;
+  gap:14px;
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+}
+
+.corp-icon{
+  width:56px;
+  height:56px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background:var(--gl);
+  color:var(--g);
+  font-size:1.2rem;
+}
+
+.corp-feature h3{
+  margin:3px 0 6px;
+  font-size:1rem;
+  color:var(--blk);
+}
+
+.corp-feature p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.corp-dashboard{
+  display:grid;
+  gap:16px;
+}
+
+.corp-chart{
+  padding:24px;
+  border-radius:32px;
+  background:linear-gradient(180deg,color-mix(in srgb, var(--b) 92%, #050608),color-mix(in srgb, var(--b) 76%, #102119));
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+  min-height:460px;
+}
+
+.corp-chart::before{
+  content:"";
+  position:absolute;
+  inset:-22% auto auto -10%;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);
+}
+
+.corp-chart::after{
+  content:"";
+  position:absolute;
+  right:-120px;
+  bottom:-120px;
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb, var(--g) 24%, transparent),transparent 72%);
+}
+
+body[data-theme="verdant"] .corp-chart{
+  background:linear-gradient(180deg,#173823 0%, #10281C 100%);
+}
+
+body[data-theme="verdant"] .corp-chart::before{
+  background:radial-gradient(circle,rgba(212,161,76,.16),transparent 70%);
+}
+
+body[data-theme="verdant"] .corp-chart::after{
+  background:radial-gradient(circle,rgba(33,78,50,.36),transparent 72%);
+}
+
+body[data-theme="ivory"] .corp-chart{
+  background:linear-gradient(180deg,#183A34 0%, #102824 100%);
+}
+
+.corp-chart small{
+  display:block;
+  position:relative;
+  z-index:1;
+  color:rgba(255,255,255,.55);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.16em;
+}
+
+.corp-chart-grid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+  gap:18px;
+  margin-top:18px;
+}
+
+.chart-panel{
+  position:relative;
+  border-radius:26px;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+
+.chart-panel.bars{
+  padding:22px 20px 20px;
+}
+
+.chart-panel.ring{
+  display:grid;
+  align-content:start;
+  padding:22px 20px 20px;
+}
+
+.chart-panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.chart-panel-copy{
+  max-width:260px;
+}
+
+.chart-panel-head strong{
+  display:block;
+  font-size:1.05rem;
+  font-weight:600;
+  color:#fff;
+  line-height:1.2;
+}
+
+.chart-panel-head span{
+  display:block;
+  margin-top:6px;
+  color:rgba(255,255,255,.55);
+  font-size:.84rem;
+  line-height:1.45;
+}
+
+.mini-chip{
+  padding:8px 10px;
+  border-radius:999px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  color:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.chart-bars{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  align-items:end;
+  min-height:298px;
+  padding:4px 8px 56px;
+}
+
+.chart-bars::before{
+  content:"";
+  position:absolute;
+  inset:0 8px 56px;
+  border-radius:18px;
+  background:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px) 0 0/100% 25%,
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) 0 0/25% 100%;
+  opacity:.45;
+  pointer-events:none;
+}
+
+.chart-bar{
+  position:relative;
+  min-height:238px;
+  padding-top:8px;
+}
+
+.chart-bar-shell{
+  position:absolute;
+  inset:8px 0 56px;
+  border-radius:28px 28px 12px 12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.chart-bar-fill{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:56px;
+  border-radius:22px 22px 10px 10px;
+  transform-origin:bottom;
+  overflow:hidden;
+}
+
+.chart-bar.air .chart-bar-fill{
+  height:70%;
+  background:linear-gradient(180deg,#F19B8E,#B0483D 88%);
+}
+
+.chart-bar.gl .chart-bar-fill{
+  height:44%;
+  background:linear-gradient(180deg,#7BE0C3,#1E8B6D 88%);
+  animation-delay:.18s;
+}
+
+.chart-bar-label{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:0;
+  text-align:center;
+  color:rgba(255,255,255,.68);
+  font-size:.76rem;
+  line-height:1.25;
+  min-height:42px;
+  display:grid;
+  place-items:start center;
+}
+
+.chart-value{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:60px;
+  text-align:center;
+  color:#fff;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;
+  line-height:1;
+}
+
+.chart-value span{
+  display:block;
+  margin-top:6px;
+  font-family:'DM Sans',sans-serif;
+  font-size:.68rem;
+  line-height:1.25;
+  color:rgba(255,255,255,.62);
+}
+
+.money-stack{
+  position:absolute;
+  left:50%;
+  bottom:16px;
+  width:96px;
+  height:146px;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+
+.money-note{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:84px;
+  height:38px;
+  border-radius:8px;
+  transform:translateX(-50%);
+  box-shadow:0 10px 18px rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.34);
+  opacity:0;
+}
+
+.money-note::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:8px;
+  background:
+    linear-gradient(90deg, transparent 0 14%, rgba(255,255,255,.26) 14% 18%, transparent 18% 82%, rgba(255,255,255,.26) 82% 86%, transparent 86%),
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
+}
+
+.money-note::after{
+  content:"₹";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;
+  color:rgba(18,20,22,.62);
+}
+
+.chart-bar.air .money-note{
+  background:linear-gradient(180deg,#FFEADB,#F4B59E);
+}
+
+.chart-bar.gl .money-note{
+  background:linear-gradient(180deg,#E8FFF6,#9DE6CB);
+}
+
+.analytics-strip{
+  margin-top:18px;
+  padding:16px 16px 14px;
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.analytics-strip-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.analytics-strip-head strong{
+  color:#fff;
+  font-size:.94rem;
+}
+
+.analytics-strip-head span{
+  color:rgba(255,255,255,.55);
+  font-size:.8rem;
+}
+
+.trend-line{
+  position:relative;
+  height:104px;
+  border-radius:16px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+}
+
+.trend-line::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px) 0 0/100% 33.333%,
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) 0 0/20% 100%;
+}
+
+.trend-line svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.trend-line path{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.trend-line .airline-path{
+  stroke:#E98176;
+  stroke-width:4;
+  stroke-dasharray:260;
+  stroke-dashoffset:260;
+  animation:drawLine 2.2s var(--anim) forwards;
+}
+
+.trend-line .golite-path{
+  stroke:#67DAB8;
+  stroke-width:4;
+  stroke-dasharray:260;
+  stroke-dashoffset:260;
+  animation:drawLine 2.2s .22s var(--anim) forwards;
+}
+
+.trend-dot{
+  transform-origin:center;
+  animation:pulseDot 2.6s ease-in-out infinite;
+}
+
+.ring-wrap{
+  position:relative;
+  width:min(100%,240px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  margin:4px auto 0;
+}
+
+.ring-wrap svg{
+  width:100%;
+  height:100%;
+  transform:rotate(-90deg);
+}
+
+.ring-track{
+  stroke:rgba(255,255,255,.08);
+  stroke-width:18;
+  fill:none;
+}
+
+.ring-progress{
+  stroke:url(#ringGradient);
+  stroke-width:18;
+  fill:none;
+  stroke-linecap:round;
+  stroke-dasharray:565;
+  stroke-dashoffset:565;
+  animation:ringLoad 2s .15s var(--anim) forwards;
+}
+
+.ring-core{
+  position:absolute;
+  inset:25%;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.ring-core strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.2rem;
+  color:#fff;
+  line-height:.9;
+}
+
+.ring-core span{
+  display:block;
+  margin-top:8px;
+  color:rgba(255,255,255,.62);
+  font-size:.72rem;
+  line-height:1.35;
+  max-width:120px;
+  margin-inline:auto;
+}
+
+.ring-legend{
+  width:100%;
+  margin-top:16px;
+  display:grid;
+  gap:10px;
+}
+
+.ring-legend div{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  color:rgba(255,255,255,.76);
+  font-size:.88rem;
+}
+
+.ring-legend span{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:170px;
+  line-height:1.35;
+}
+
+.ring-legend i{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:8px;
+}
+
+.chart-meta{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.meta-card{
+  padding:18px;
+  border-radius:20px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+}
+
+.meta-card small{
+  display:block;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+}
+
+.meta-card strong{
+  display:block;
+  margin-top:8px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;
+  color:var(--blk);
+}
+
+.how-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);
+  gap:20px;
+  align-items:start;
+}
+
+.how-steps{
+  display:grid;
+  gap:12px;
+  margin-top:24px;
+}
+
+.how-step{
+  display:grid;
+  grid-template-columns:58px 1fr;
+  gap:16px;
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+}
+
+.how-num{
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  color:#fff;
+  background:var(--g);
+  font-family:'DM Mono',monospace;
+}
+
+.how-step h3{
+  margin:4px 0 6px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;
+  color:var(--blk);
+}
+
+.how-step p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.75;
+}
+
+.chat-stage{
+  position:sticky;
+  top:110px;
+  padding:24px;
+}
+
+.phone{
+  position:relative;
+  border-radius:38px;
+  background:linear-gradient(180deg,color-mix(in srgb, var(--b) 10%, var(--wh)),var(--wh));
+  border:1px solid var(--rule);
+  padding:18px;
+  overflow:hidden;
+  box-shadow:0 28px 60px rgba(0,0,0,.12);
+  animation:phoneFloat 10s ease-in-out infinite;
+}
+
+.phone::before{
+  content:"";
+  position:absolute;
+  top:12px;
+  left:50%;
+  width:120px;
+  height:22px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:color-mix(in srgb, var(--blk) 10%, transparent);
+}
+
+.phone::after{
+  content:"";
+  position:absolute;
+  inset:-20% auto auto -30%;
+  width:48%;
+  height:140%;
+  transform:rotate(16deg);
+  background:linear-gradient(180deg,rgba(255,255,255,.0),rgba(255,255,255,.18),rgba(255,255,255,.0));
+  animation:phoneShine 11s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.chat-head{
+  margin-top:16px;
+  border-radius:24px 24px 0 0;
+  background:var(--g);
+  padding:16px 18px;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.chat-avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.18);
+  font-family:'DM Mono',monospace;
+}
+
+.chat-presence{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+.chat-presence::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#7EF0C4;
+  box-shadow:0 0 0 0 rgba(126,240,196,.45);
+  animation:presencePulse 3.2s ease-out infinite;
+}
+
+.chat-stream{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:18px;
+  background:color-mix(in srgb, var(--gl) 55%, var(--wh));
+  position:relative;
+}
+
+.msg{
+  max-width:82%;
+  padding:12px 14px;
+  border-radius:16px;
+  line-height:1.65;
+  font-size:.95rem;
+  animation:msgIn .6s var(--anim) both;
+  position:relative;
+}
+
+.msg.in{
+  align-self:flex-start;
+  background:#fff;
+  color:var(--ch);
+  border-radius:16px 16px 16px 4px;
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+
+.msg.out{
+  align-self:flex-end;
+  background:var(--g);
+  color:#fff;
+  border-radius:16px 16px 4px 16px;
+}
+
+.msg.quote{
+  animation-delay:2.2s;
+}
+
+.msg.typing{
+  max-width:92px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:12px 14px;
+  animation:msgIn .7s 1.5s var(--anim) both, typingPulse 2.2s 2.2s ease-in-out infinite;
+}
+
+.typing-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:color-mix(in srgb, var(--g) 60%, white);
+  opacity:.45;
+  animation:typingDot 1.5s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2){animation-delay:.12s}
+.typing-dot:nth-child(3){animation-delay:.24s}
+
+.msg:nth-child(2){animation-delay:.2s}
+.msg:nth-child(3){animation-delay:.45s}
+.msg:nth-child(4){animation-delay:.7s}
+.msg:nth-child(5){animation-delay:.95s}
+.msg:nth-child(6){animation-delay:1.2s}
+.msg:nth-child(7){animation-delay:1.45s}
+
+.chat-chip-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:0 18px 18px;
+  background:color-mix(in srgb, var(--gl) 55%, var(--wh));
+}
+
+.chat-chip{
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid var(--g100);
+  color:var(--g);
+  background:#fff;
+  font-size:.78rem;
+  transform:translateY(10px);
+  opacity:0;
+  animation:chipIn .7s var(--anim) forwards;
+}
+
+body[data-theme="obsidian"] .chat-stream{
+  background:linear-gradient(180deg,#1A1B20,#141519);
+}
+
+body[data-theme="obsidian"] .msg.in{
+  color:#121316;
+  background:#F7F1E8;
+}
+
+body[data-theme="obsidian"] .msg.typing{
+  background:#F7F1E8;
+}
+
+body[data-theme="obsidian"] .typing-dot{
+  background:#245F4E;
+}
+
+body[data-theme="obsidian"] .chat-chip-row{
+  background:linear-gradient(180deg,#141519,#101115);
+}
+
+body[data-theme="obsidian"] .chat-chip{
+  color:#162A23;
+  background:#F3E7D7;
+  border-color:rgba(203,164,90,.24);
+}
+
+.chat-chip:nth-child(1){animation-delay:2.7s}
+.chat-chip:nth-child(2){animation-delay:2.9s}
+.chat-chip:nth-child(3){animation-delay:3.1s}
+
+.how-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+
+.how-stat{
+  padding:16px;
+  border-radius:18px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  text-align:center;
+}
+
+.how-stat strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.9rem;
+  color:var(--blk);
+}
+
+.how-stat span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.8rem;
+}
+
+.pricing-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+  gap:20px;
+  align-items:start;
+}
+
+.pricing-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+
+.price-card{
+  position:relative;
+  padding:30px;
+  border-radius:28px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  overflow:hidden;
+}
+
+.price-card::before,
+.price-card::after{
+  content:"";
+  position:absolute;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--f0);
+  border:1px solid var(--rule);
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.price-card::before{left:-14px}
+.price-card::after{right:-14px}
+
+.price-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.price-badge{
+  display:inline-flex;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--g) 14%, transparent);
+  border:1px solid color-mix(in srgb, var(--g) 26%, transparent);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--blk);
+}
+
+.price-name{
+  margin:16px 0 6px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;
+  color:var(--blk);
+}
+
+.price-sub{color:var(--muted);font-size:.92rem}
+
+.price-value{
+  margin-top:18px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:4rem;
+  line-height:1;
+  color:var(--blk);
+}
+
+.price-note{
+  margin-top:8px;
+  color:var(--muted);
+}
+
+.ticket-list{
+  list-style:none;
+  margin:20px 0 0;
+  padding:0;
+  display:grid;
+  gap:10px;
+}
+
+.ticket-list li{
+  display:flex;
+  gap:10px;
+  line-height:1.6;
+  color:var(--body);
+}
+
+.ticket-list span:first-child{color:var(--g);font-weight:700}
+
+.addons{
+  margin-top:18px;
+  padding:18px 22px;
+  border-radius:20px;
+  border:1px dashed var(--rule);
+  background:var(--surface);
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.testi-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.74fr) minmax(0,1.26fr);
+  gap:20px;
+  align-items:start;
+}
+
+.carousel{
+  position:relative;
+  overflow:hidden;
+  border-radius:30px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  min-height:390px;
+}
+
+.carousel-track{
+  display:flex;
+  width:300%;
+  animation:carousel 16s infinite;
+}
+
+.slide{
+  width:100%;
+  padding:34px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:22px;
+  min-height:390px;
+}
+
+.slide .stars{
+  color:var(--am);
+  letter-spacing:3px;
+}
+
+.slide blockquote{
+  margin:0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.6rem,2.3vw,2.2rem);
+  line-height:1.35;
+  color:var(--ch);
+}
+
+.slide footer{
+  margin-top:auto;
+  padding:0;
+  background:transparent;
+  border:0;
+}
+
+.slide strong{display:block;color:var(--blk)}
+.slide span{display:block;margin-top:4px;color:var(--muted)}
+
+.carousel-dots{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:22px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+}
+
+.carousel-dots i{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:color-mix(in srgb, var(--g) 18%, transparent);
+}
+
+.carousel-dots i:nth-child(1){animation:dot1 16s infinite}
+.carousel-dots i:nth-child(2){animation:dot2 16s infinite}
+.carousel-dots i:nth-child(3){animation:dot3 16s infinite}
+
+.neat-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+  gap:20px;
+  align-items:start;
+}
+
+.neat-stage{
+  position:relative;
+  min-height:560px;
+  border-radius:34px;
+  border:1px solid var(--rule);
+  background:linear-gradient(180deg,color-mix(in srgb, var(--wh) 96%, transparent),color-mix(in srgb, var(--f2) 78%, var(--wh)));
+  overflow:hidden;
+}
+
+.neat-stage::before{
+  content:"";
+  position:absolute;
+  inset:18% 24% 18% 24%;
+  border-radius:50%;
+  border:1px dashed color-mix(in srgb, var(--g) 24%, transparent);
+  animation:spinSlow 18s linear infinite;
+}
+
+.neat-stage::after{
+  content:"";
+  position:absolute;
+  inset:28% 34% 28% 34%;
+  border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb, var(--g) 12%, transparent),transparent 72%);
+  filter:blur(18px);
+}
+
+.neat-center{
+  position:absolute;
+  inset:50% auto auto 50%;
+  transform:translate(-50%,-50%);
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:var(--g);
+  color:#fff;
+  font-family:'Cormorant Garamond',serif;
+  font-size:4rem;
+  letter-spacing:.08em;
+  box-shadow:0 20px 34px color-mix(in srgb, var(--g) 28%, transparent);
+  animation:coinFloat 5.2s ease-in-out infinite;
+}
+
+.neat-center::before{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:50%;
+  border:1px solid color-mix(in srgb, var(--am) 36%, transparent);
+  opacity:.9;
+}
+
+.neat-center::after{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:50%;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.22),transparent 32%),
+    linear-gradient(180deg,color-mix(in srgb, var(--g) 88%, white),color-mix(in srgb, var(--gd) 88%, black));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+  z-index:-1;
+}
+
+.neat-card{
+  position:absolute;
+  width:min(44%,240px);
+  padding:22px;
+  border-radius:24px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  box-shadow:0 14px 24px rgba(0,0,0,.06);
+}
+
+.neat-card strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;
+  color:var(--blk);
+}
+
+.neat-card h3{
+  margin:10px 0 6px;
+  font-size:1rem;
+  color:var(--blk);
+}
+
+.neat-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.neat-card.n{top:24px;left:24px}
+.neat-card.e{top:24px;right:24px}
+.neat-card.a{bottom:24px;left:24px}
+.neat-card.t{bottom:24px;right:24px}
+
+.contact-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  gap:20px;
+  align-items:start;
+}
+
+.contact-stack{
+  display:grid;
+  gap:12px;
+}
+
+.contact-card{
+  display:grid;
+  grid-template-columns:54px 1fr auto;
+  gap:14px;
+  align-items:center;
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  text-decoration:none;
+}
+
+.contact-icon{
+  width:54px;
+  height:54px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  background:var(--gl);
+  color:var(--g);
+}
+
+.contact-card h3{
+  margin:0;
+  color:var(--blk);
+  font-size:1rem;
+}
+
+.contact-card p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+.contact-form{
+  padding:28px;
+  border-radius:28px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:20px;
+}
+
+.field{
+  display:grid;
+  gap:6px;
+}
+
+.field.full{grid-column:1/-1}
+
+.field label{
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid var(--rule);
+  background:var(--f0);
+  color:var(--ch);
+  font:inherit;
+  outline:none;
+}
+
+.field textarea{min-height:110px;resize:vertical}
+
+.form-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.form-note{color:var(--muted);font-size:.85rem}
+
+.city-row{
+  margin-top:34px;
+  padding-top:28px;
+  border-top:1px solid var(--rule);
+}
+
+.city-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.city-pill{
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  color:var(--body);
+  font-size:.88rem;
+}
+
+.cta{
+  padding:44px 0;
+}
+
+.cta-band{
+  padding:36px;
+  border-radius:32px;
+  background:var(--b);
+  color:#fff;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.cta-band::before{
+  content:"GL";
+  position:absolute;
+  right:-20px;
+  top:-40px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:280px;
+  color:rgba(255,255,255,.04);
+  line-height:1;
+}
+
+.cta-band h2{
+  margin:10px 0 10px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.6rem);
+  line-height:1;
+}
+
+.cta-band p{
+  margin:0 auto 22px;
+  max-width:46ch;
+  color:rgba(255,255,255,.82);
+  line-height:1.75;
+}
+
+.cta-band .eyebrow{
+  color:rgba(255,255,255,.78) !important;
+}
+
+.cta-band .eyebrow::before{
+  background:currentColor;
+}
+
+.cta-band .btn-secondary{
+  border-color:rgba(255,255,255,.22);
+  color:#fff;
+  background:rgba(255,255,255,.08);
+}
+
+.cta-band .btn-secondary:hover{
+  background:rgba(255,255,255,.14);
+}
+
+.cta-meta{
+  margin-top:16px;
+  color:rgba(255,255,255,.72);
+}
+
+body[data-theme="verdant"] .cta-band,
+body[data-theme="ivory"] .cta-band{
+  background:linear-gradient(135deg,#163726 0%, #0F2418 55%, #173F33 100%);
+}
+
+body[data-theme="verdant"] .cta-band p,
+body[data-theme="verdant"] .cta-meta,
+body[data-theme="ivory"] .cta-band p,
+body[data-theme="ivory"] .cta-meta{
+  color:rgba(255,255,255,.84);
+}
+
+.cta-actions{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.footer{
+  padding:28px 0 40px;
+}
+
+.footer-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+  padding-top:18px;
+  border-top:1px solid var(--rule);
+}
+
+.footer-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+}
+
+.footer-brand img{
+  width:38px;
+  height:38px;
+  object-fit:contain;
+  border-radius:12px;
+  border:1px solid var(--rule);
+  background:var(--wh);
+  padding:6px;
+}
+
+.footer-links{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.footer-links a{
+  color:var(--muted);
+  text-decoration:none;
+  font-size:.85rem;
+}
+
+.wa-float{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:28;
+  padding:14px 18px;
+  border-radius:999px;
+  background:#25D366;
+  color:#fff;
+  text-decoration:none;
+  box-shadow:0 16px 30px rgba(37,211,102,.3);
+  font-weight:700;
+}
+
+@keyframes heroFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+
+@keyframes auroraDrift{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(4%,-3%) scale(1.06)}
+}
+
+@keyframes pulseRing{
+  0%{transform:translate(-50%,-50%) scale(.88);opacity:.55}
+  70%{opacity:.12}
+  100%{transform:translate(-50%,-50%) scale(1.12);opacity:0}
+}
+
+@keyframes glowBreathe{
+  0%,100%{opacity:.75;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+}
+
+@keyframes shimmerPass{
+  0%,12%{background-position:-180% 0}
+  48%{background-position:180% 0}
+  52%,100%{background-position:180% 0}
+}
+
+@keyframes heroLogoAlive{
+  0%,100%{transform:translateY(0) scale(1)}
+  40%{transform:translateY(-4px) scale(1.012)}
+  70%{transform:translateY(2px) scale(.998)}
+}
+
+@keyframes beam{
+  0%,18%{transform:translateX(-120%)}
+  52%{transform:translateX(120%)}
+  100%{transform:translateX(120%)}
+}
+
+@keyframes spin{
+  from{transform:rotate(0)}
+  to{transform:rotate(360deg)}
+}
+
+@keyframes spin-reverse{
+  from{transform:rotate(360deg)}
+  to{transform:rotate(0)}
+}
+
+@keyframes beltMove{
+  from{background-position:0 0}
+  to{background-position:92px 0}
+}
+
+@keyframes bagRide{
+  0%{
+    transform:translateX(-220px) translateY(var(--bag-lift, 0)) scale(var(--bag-scale, 1)) rotate(-1.4deg);
+    opacity:0;
+  }
+  8%{
+    opacity:1;
+  }
+  45%{
+    transform:translateX(120px) translateY(calc(var(--bag-lift, 0) - 2px)) scale(var(--bag-scale, 1)) rotate(.4deg);
+    opacity:1;
+  }
+  78%{
+    transform:translateX(380px) translateY(calc(var(--bag-lift, 0) + 1px)) scale(var(--bag-scale, 1)) rotate(-.4deg);
+    opacity:1;
+  }
+  100%{
+    transform:translateX(620px) translateY(var(--bag-lift, 0)) scale(var(--bag-scale, 1)) rotate(.8deg);
+    opacity:0;
+  }
+}
+
+@keyframes barGrow{
+  from{transform:scaleY(0)}
+  to{transform:scaleY(1)}
+}
+
+@keyframes drawLine{
+  to{stroke-dashoffset:0}
+}
+
+@keyframes ringLoad{
+  to{stroke-dashoffset:141}
+}
+
+@keyframes pulseDot{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.18)}
+}
+
+@keyframes coinFloat{
+  0%,100%{transform:translate(-50%,-50%) translateY(0)}
+  50%{transform:translate(-50%,-50%) translateY(-10px)}
+}
+
+@keyframes spinSlow{
+  from{transform:rotate(0)}
+  to{transform:rotate(360deg)}
+}
+
+@keyframes phoneFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+
+@keyframes phoneShine{
+  0%,100%{transform:translateX(-10%) rotate(16deg);opacity:0}
+  18%{opacity:.0}
+  38%{transform:translateX(190%) rotate(16deg);opacity:.85}
+  39%,100%{opacity:0}
+}
+
+@keyframes presencePulse{
+  0%{box-shadow:0 0 0 0 rgba(126,240,196,.45)}
+  70%{box-shadow:0 0 0 10px rgba(126,240,196,0)}
+  100%{box-shadow:0 0 0 0 rgba(126,240,196,0)}
+}
+
+@keyframes typingDot{
+  0%,80%,100%{transform:translateY(0);opacity:.38}
+  40%{transform:translateY(-4px);opacity:1}
+}
+
+@keyframes typingPulse{
+  0%,100%{opacity:1}
+  50%{opacity:.86}
+}
+
+@keyframes chipIn{
+  to{transform:none;opacity:1}
+}
+
+@keyframes msgIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+
+@keyframes carousel{
+  0%,28%{transform:translateX(0)}
+  33%,61%{transform:translateX(-33.3333%)}
+  66%,94%{transform:translateX(-66.6666%)}
+  100%{transform:translateX(0)}
+}
+
+@keyframes dot1{
+  0%,28%,100%{background:var(--g)}
+  33%,94%{background:color-mix(in srgb, var(--g) 20%, transparent)}
+}
+
+@keyframes dot2{
+  0%,28%,62%,100%{background:color-mix(in srgb, var(--g) 20%, transparent)}
+  33%,61%{background:var(--g)}
+}
+
+@keyframes dot3{
+  0%,61%,100%{background:color-mix(in srgb, var(--g) 20%, transparent)}
+  66%,94%{background:var(--g)}
+}
+
+@media (max-width:1080px){
+  .hero-stats,
+  .meta-card,
+  .corp-chart-grid,
+  .segments-layout,
+  .pain-layout,
+  .corporate-layout,
+  .how-layout,
+  .pricing-layout,
+  .testi-layout,
+  .neat-layout,
+  .contact-layout,
+  .hero-grid{grid-template-columns:1fr}
+  .pain-visual,
+  .chat-stage{position:relative;top:auto}
+}
+
+@media (max-width:760px){
+  .theme-switch,
+  .nav-links{display:none}
+  .hero-stats,
+  .pricing-grid,
+  .form-grid,
+  .meta-card,
+  .how-stats{grid-template-columns:1fr}
+  .corp-chart{min-height:auto}
+  .corp-chart-grid,
+  .chart-meta{grid-template-columns:1fr}
+  .chart-panel.bars,
+  .chart-panel.ring{padding:18px}
+  .chart-bars{min-height:220px}
+  .ring-wrap{width:min(100%,220px)}
+  .segment-card,
+  .pain-card,
+  .how-step,
+  .contact-card{grid-template-columns:1fr}
+  .segment-card{padding-left:24px}
+  .segment-card::before,
+  .pain-index,
+  .how-num{position:relative;left:auto;top:auto}
+  .neat-stage{min-height:auto;padding:24px;display:grid;gap:14px}
+  .neat-center{position:relative;inset:auto;transform:none;margin:0 auto}
+  .neat-card{position:relative;width:auto;top:auto;left:auto;right:auto;bottom:auto}
+  .wa-float{left:16px;right:16px;text-align:center}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,
+  *::before,
+  *::after{animation:none !important;transition:none !important}
+  .reveal{opacity:1;transform:none}
+  .hero-logo-wrap,
+  .hero-logo,
+  .hero-aurora,
+  .hero-pulse-ring,
+  .hero-logo-shimmer{animation:none !important}
+}
+</style>
+</head>
+<body data-theme="verdant">
+<div class="page">
+  <header class="topbar">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" style="text-decoration:none">
+        <img id="nav-logo" src="assets/go-lite-mark-512w.png" srcset="assets/go-lite-mark-256w.png 256w, assets/go-lite-mark-512w.png 512w" sizes="50px" width="512" height="569" alt="Go Lite" decoding="async">
+        <div class="brand-name">Go Lite</div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#pain">The problem</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#corporate">Corporate</a></li>
+        <li><a href="#tiers">Pricing</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div class="theme-switch">
+          <button type="button" data-theme="auto" class="active" title="Match time of day">AUTO</button>
+          <button type="button" data-theme="obsidian">BLACK GOLD</button>
+          <button type="button" data-theme="verdant">WHITE GREEN</button>
+          <button type="button" data-theme="ivory">IVORY FOREST</button>
+        </div>
+        <a class="btn btn-primary" href="https://wa.me/919867694658">Book now</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy reveal visible">
+          <span class="eyebrow">INDIA'S FIRST LUGGAGE MOBILITY SERVICE</span>
+          <h1 class="headline">Your bags travel<br><em>separately.</em><br><strong>You travel free.</strong></h1>
+          <p class="lead">We exist for one reason — so your next journey is filled with <strong>memories, not luggage stress.</strong></p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Book">Book on WhatsApp</a>
+            <a class="btn btn-secondary" href="#pain">See what we solve →</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat reveal delay-1"><strong>₹599</strong><span>per bag · Smart tier</span></div>
+            <div class="stat reveal delay-2"><strong>8+</strong><span>cities served</span></div>
+            <div class="stat reveal delay-3"><strong>48hr</strong><span>standard delivery</span></div>
+            <div class="stat reveal delay-3"><strong>100%</strong><span>tracked in transit</span></div>
+          </div>
+        </div>
+
+        <div class="hero-stage reveal delay-2">
+          <div class="hero-stage-top">
+            <div>
+              <small>GO LITE SIGNATURES</small>
+              <strong>Your bags move. You move freely.</strong>
+              <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;margin-top:10px">Signature door-to-door luggage mobility</div>
+            </div>
+          </div>
+
+          <div class="hero-stage-center">
+            <div class="hero-aurora" aria-hidden="true"></div>
+            <div class="orbit-a"></div>
+            <div class="orbit-b"></div>
+            <div class="hero-pulse-ring" aria-hidden="true"></div>
+            <div class="hero-pulse-ring hero-pulse-ring--delay" aria-hidden="true"></div>
+            <div class="logo-beam"></div>
+            <div class="hero-logo-wrap" id="hero-logo-wrap">
+              <picture>
+                <source type="image/webp" srcset="assets/go-lite-wordmark-800w.webp 800w, assets/go-lite-wordmark-640w.webp 640w, assets/go-lite-wordmark-480w.webp 480w, assets/go-lite-wordmark-360w.webp 360w" sizes="(max-width: 640px) min(92vw, 460px), min(460px, 42vw)">
+                <img id="hero-logo" class="hero-logo" src="assets/go-lite-wordmark-640w.png" srcset="assets/go-lite-wordmark-360w.png 360w, assets/go-lite-wordmark-480w.png 480w, assets/go-lite-wordmark-640w.png 640w, assets/go-lite-wordmark-800w.png 800w" sizes="(max-width: 640px) min(92vw, 460px), min(460px, 42vw)" width="800" height="305" alt="Go Lite" decoding="async">
+              </picture>
+              <div class="hero-logo-shimmer" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tagline">
+      <div class="shell tagline-row">
+        <span style="width:28px;height:1.5px;background:var(--g)"></span>
+        <p>"Carry <span>Memories</span> — Not Baggage."</p>
+        <span style="width:28px;height:1.5px;background:var(--g)"></span>
+        <p style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);font-style:normal">POWERED BY DRIVAA RUN</p>
+      </div>
+    </section>
+
+    <section id="segments" class="section">
+      <div class="shell segments-layout">
+        <div class="segments-intro reveal">
+          <span class="eyebrow">WHO TRAVELS WITH GO LITE</span>
+          <h2 class="section-title">Anyone who travels with<br><em>more than a backpack.</em></h2>
+          <p class="lead">Six types of travelers. One thing in common — they chose to make their journey about the experience, not the luggage.</p>
+        </div>
+
+        <div class="segments-track">
+          <article class="segment-card reveal delay-1" data-index="01">
+            <h3>Families</h3>
+            <p>School holidays, vacations, family reunions. Managing 4–6 bags alongside kids and elderly parents through airports is exhausting. Go Lite gives families their hands back.</p>
+            <span class="quote">"We actually enjoyed the airport for the first time."</span>
+          </article>
+          <article class="segment-card reveal delay-2" data-index="02">
+            <h3>Frequent business travelers</h3>
+            <p>Traveling 2–4 times a month, paying ₹1,500+ in excess fees each trip. Go Lite is cheaper, faster, and means you arrive ready to work — not worn out from baggage handling.</p>
+            <span class="quote">"I check in for flights in under 5 minutes now."</span>
+          </article>
+          <article class="segment-card reveal delay-3" data-index="03">
+            <h3>Students relocating</h3>
+            <p>Moving to a new city for college or a job? Your life's belongings don't fit in carry-on. Go Lite sends everything ahead — you travel light, bags arrive at your new home.</p>
+            <span class="quote">"My bags arrived before I did. Best decision ever."</span>
+          </article>
+          <article class="segment-card reveal delay-1" data-index="04">
+            <h3>Senior citizens</h3>
+            <p>Traveling with health conditions or mobility issues means every extra kilogram matters. Go Lite removes the physical burden entirely — elderly travelers move through airports without strain.</p>
+            <span class="quote">"My parents traveled alone for the first time in years."</span>
+          </article>
+          <article class="segment-card reveal delay-2" data-index="05">
+            <h3>NRI visitors</h3>
+            <p>Bringing gifts, clothes, and memories back from abroad means airline baggage limits are constantly exceeded. Go Lite ships your bags without the surcharge or the stress.</p>
+            <span class="quote">"I brought everything I wanted. No compromises."</span>
+          </article>
+          <article class="segment-card reveal delay-3" data-index="06">
+            <h3>Destination weddings</h3>
+            <p>Wedding outfits, gifts, and décor don't fit in cabin bags. And you can't check in a suitcase of irreplaceable lehengas. Go Lite moves everything — safely, on priority.</p>
+            <span class="quote">"The wedding attire arrived pressed and perfect."</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pain" class="section" style="background:var(--f1)">
+      <div class="shell pain-layout">
+        <div class="pain-intro reveal">
+          <span class="eyebrow">THE REAL COST OF TRAVEL TODAY</span>
+          <h2 class="section-title">Every trip has <em>five moments</em><br>that exhaust you.</h2>
+          <div class="pain-moments" style="margin-top:24px">
+            <article class="pain-card reveal delay-1">
+              <div class="pain-index">01</div>
+              <div><h3>Getting to the airport</h3><p>You wrestle <strong>3 heavy bags</strong> into an Uber that barely fits them. The driver is irritated. You arrive sweating, already exhausted. With kids or elderly parents? Add 30 minutes and twice the stress.</p></div>
+            </article>
+            <article class="pain-card reveal delay-2">
+              <div class="pain-index">02</div>
+              <div><h3>The check-in queue</h3><p>You stand in a 40-minute queue. The agent says your bag is <strong>3 kg overweight</strong>. That's ₹1,500 you didn't plan for. You repack on the airport floor. Your flight is in 90 minutes.</p></div>
+            </article>
+            <article class="pain-card reveal delay-3">
+              <div class="pain-index">03</div>
+              <div><h3>Managing kids &amp; seniors through terminals</h3><p>Your mother needs a wheelchair. Your 4-year-old is running the wrong way. You have <strong>two trolleys, a pram, and one pair of hands</strong>. This isn't a holiday — it's a military operation.</p></div>
+            </article>
+            <article class="pain-card reveal delay-1">
+              <div class="pain-index">04</div>
+              <div><h3>Waiting at the baggage belt</h3><p>You've landed. You're tired. Now stand at a carousel for another <strong>35 minutes</strong> watching bags go round — hoping yours isn't last, or worse, lost.</p></div>
+            </article>
+            <article class="pain-card reveal delay-2">
+              <div class="pain-index">05</div>
+              <div><h3>The exit from the airport</h3><p>Get bags into a cab, across the city, up the stairs. Your destination wedding starts in <strong>4 hours</strong>. You arrive at the hotel out of breath. This was supposed to be a celebration.</p></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="pain-visual reveal delay-2">
+          <div class="pain-stage">
+            <div class="pain-stage-top">
+              <div>
+                <strong>Burden builds across the journey.</strong>
+                <span>Every handoff adds one more layer of travel friction.</span>
+              </div>
+              <div class="pain-meter">
+                <small>STRESS LOAD</small>
+                <div class="pain-meter-track"><div class="pain-meter-fill" id="pain-meter-fill"></div></div>
+              </div>
+            </div>
+            <div class="pain-arena" aria-hidden="true">
+              <div class="pain-lane"></div>
+              <div class="pain-checkpoint c1"><div class="ring">01</div><label>AIRPORT</label></div>
+              <div class="pain-checkpoint c2"><div class="ring">02</div><label>QUEUE</label></div>
+              <div class="pain-checkpoint c3"><div class="ring">03</div><label>TERMINAL</label></div>
+              <div class="pain-checkpoint c4"><div class="ring">04</div><label>BELT</label></div>
+              <div class="pain-checkpoint c5"><div class="ring">05</div><label>EXIT</label></div>
+              <div class="pain-pulse" id="pain-pulse"></div>
+              <div class="pain-traveler" id="pain-traveler">
+                <div class="pain-avatar" id="pain-avatar"></div>
+                <div class="pain-load l1"></div>
+                <div class="pain-load l2"></div>
+                <div class="pain-load l3"></div>
+                <div class="pain-load l4"></div>
+              </div>
+            </div>
+            <div class="pain-summary">
+              <strong>None of this. Not a single step.</strong>
+              <span>When you book Go Lite, all five pain points disappear. You travel with nothing but yourself — from home to destination. Your bags handle themselves.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="corporate" class="section">
+      <div class="shell corporate-layout">
+        <div class="corp-copy reveal">
+          <span class="eyebrow">CORPORATE &amp; B2B</span>
+          <h2 class="section-title">Your team travels light.<br><strong>Your business</strong> <em>wins.</em></h2>
+          <p class="lead">Excess baggage fees silently eat your travel budget. The average company with 50 frequent travelers spends ₹8–25L per year on airline baggage fees alone.</p>
+          <div class="corp-feature-list">
+            <article class="corp-feature reveal delay-1">
+              <div class="corp-icon">₹</div>
+              <div><h3>Consolidated monthly billing</h3><p>One invoice. No per-trip reimbursements. No surprises.</p></div>
+            </article>
+            <article class="corp-feature reveal delay-2">
+              <div class="corp-icon">📊</div>
+              <div><h3>HR travel dashboard</h3><p>Track every bag, every order, every employee. Full visibility.</p></div>
+            </article>
+            <article class="corp-feature reveal delay-3">
+              <div class="corp-icon">🏷</div>
+              <div><h3>Volume pricing — bulk discount off retail</h3><p>Pricing discussed based on volume and frequency.</p></div>
+            </article>
+            <article class="corp-feature reveal delay-1">
+              <div class="corp-icon">⚡</div>
+              <div><h3>Luxe-level service at Smart pricing</h3><p>Every corporate booking gets priority handling.</p></div>
+            </article>
+          </div>
+          <div style="margin-top:22px">
+            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Corporate%20enquiry">Enquire about Corporate →</a>
+          </div>
+        </div>
+
+        <div class="corp-dashboard reveal delay-2">
+          <div class="corp-chart">
+            <small>50-TRAVELER BAGGAGE COST SNAPSHOT</small>
+            <div class="corp-chart-grid">
+              <div class="chart-panel bars">
+                <div class="chart-panel-head">
+                  <div class="chart-panel-copy">
+                    <strong>Airline vs Go Lite</strong>
+                    <span>Estimated yearly baggage spend</span>
+                  </div>
+                  <div class="mini-chip">YEARLY ESTIMATE</div>
+                </div>
+                <div class="chart-bars">
+                  <div class="chart-bar air">
+                    <div class="chart-bar-shell"></div>
+                    <div class="chart-bar-fill">
+                      <div class="money-stack">
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                      </div>
+                    </div>
+                    <div class="chart-value">₹25L<span>High airline spend</span></div>
+                    <div class="chart-bar-label">Airline fees</div>
+                  </div>
+                  <div class="chart-bar gl">
+                    <div class="chart-bar-shell"></div>
+                    <div class="chart-bar-fill">
+                      <div class="money-stack">
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                        <div class="money-note"></div>
+                      </div>
+                    </div>
+                    <div class="chart-value">₹8L<span>With Go Lite</span></div>
+                    <div class="chart-bar-label">Go Lite</div>
+                  </div>
+                </div>
+                <div class="analytics-strip">
+                  <div class="analytics-strip-head">
+                    <strong>Cost trend over repeated trips</strong>
+                    <span>Go Lite remains lower</span>
+                  </div>
+                  <div class="trend-line" aria-hidden="true">
+                    <svg viewBox="0 0 320 86" preserveAspectRatio="none">
+                      <path class="airline-path" d="M10 62 C 56 58, 84 54, 124 46 S 206 28, 310 18"></path>
+                      <path class="golite-path" d="M10 66 C 58 66, 92 65, 132 62 S 212 58, 310 52"></path>
+                      <circle class="trend-dot" cx="310" cy="18" r="5" fill="#E98176"></circle>
+                      <circle class="trend-dot" cx="310" cy="52" r="5" fill="#67DAB8"></circle>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-panel ring">
+                <div class="chart-panel-head" style="width:100%">
+                  <div class="chart-panel-copy">
+                    <strong>Potential savings</strong>
+                    <span>Compared with high airline fee spend</span>
+                  </div>
+                </div>
+                <div class="ring-wrap">
+                  <svg viewBox="0 0 220 220" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="ringGradient" x1="0" y1="0" x2="220" y2="220" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#F0C96F"/>
+                        <stop offset="0.55" stop-color="#67DAB8"/>
+                        <stop offset="1" stop-color="#1E8B6D"/>
+                      </linearGradient>
+                    </defs>
+                    <circle class="ring-track" cx="110" cy="110" r="90"></circle>
+                    <circle class="ring-progress" cx="110" cy="110" r="90"></circle>
+                  </svg>
+                  <div class="ring-core">
+                    <div>
+                      <strong>68%</strong>
+                      <span>possible savings</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ring-legend">
+                  <div><span><i style="background:#F0C96F"></i>Airline fee range</span><strong>₹8L–25L</strong></div>
+                  <div><span><i style="background:#67DAB8"></i>Go Lite starting point</span><strong>from ₹8L</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-meta">
+            <div class="meta-card reveal delay-1"><small>AVERAGE SAVING</small><strong>₹17L</strong><span style="color:var(--muted)">per year · 50-person team</span></div>
+            <div class="meta-card reveal delay-2"><small>TRIPS COVERED</small><strong>24+</strong><span style="color:var(--muted)">per employee · no baggage stress</span></div>
+            <div class="meta-card reveal delay-3"><small>BILLING</small><strong>1</strong><span style="color:var(--muted)">invoice / month, zero surprises</span></div>
+            <div class="meta-card reveal delay-1"><small>PRICING</small><strong>Bulk</strong><span style="color:var(--muted)">discount off retail · volume-based</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section">
+      <div class="shell how-layout">
+        <div class="how-copy reveal">
+          <span class="eyebrow">THE PROCESS</span>
+          <h2 class="section-title">Book in 2 minutes.<br><em>Travel hands-free.</em></h2>
+          <div class="how-steps">
+            <article class="how-step reveal delay-1">
+              <div class="how-num">01</div>
+              <div><h3>Book</h3><p>WhatsApp, app, or call. Your bags, your route, your date. Under 2 minutes. No forms, no download needed.</p></div>
+            </article>
+            <article class="how-step reveal delay-2">
+              <div class="how-num">02</div>
+              <div><h3>We pick up</h3><p>Our branded crew arrives in a 2-hour window. Every bag photographed and securely tagged before it moves.</p></div>
+            </article>
+            <article class="how-step reveal delay-3">
+              <div class="how-num">03</div>
+              <div><h3>You travel free</h3><p>Walk through airports with nothing in your hands. Real-time tracking the whole way. Always.</p></div>
+            </article>
+            <article class="how-step reveal delay-1">
+              <div class="how-num">04</div>
+              <div><h3>Bags arrive</h3><p>Delivered to your hotel, home, or office — before or after you arrive. Your schedule, your choice.</p></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="chat-stage reveal delay-2">
+          <div class="phone">
+            <div class="chat-head">
+              <div class="chat-avatar">GL</div>
+              <div><strong style="display:block">Go Lite</strong><span class="chat-presence" style="font-size:.8rem;color:rgba(255,255,255,.66)">Powered by Drivaa RUN · online</span></div>
+            </div>
+            <div class="chat-stream">
+              <div class="msg in">Hi! Welcome to Go Lite 👋 What would you like to do?</div>
+              <div class="msg out">Book a pickup</div>
+              <div class="msg in">How many bags and what type?</div>
+              <div class="msg out">1 large suitcase</div>
+              <div class="msg in">Mumbai → where?</div>
+              <div class="msg out">Delhi NCR, tomorrow</div>
+              <div class="msg in typing" aria-hidden="true"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
+              <div class="msg in quote">Your quote:<br><strong>1 large suitcase · Smart · ₹1,190</strong><br>48–72 hr · door to door. Confirm?</div>
+            </div>
+            <div class="chat-chip-row">
+              <span class="chat-chip">Yes, confirm</span>
+              <span class="chat-chip">Change something</span>
+              <span class="chat-chip">Add insurance</span>
+            </div>
+          </div>
+          <div class="how-stats">
+            <div class="how-stat"><strong>2 min</strong><span>to complete booking</span></div>
+            <div class="how-stat"><strong>₹599</strong><span>per bag · Smart tier</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tiers" class="section">
+      <div class="shell pricing-layout">
+        <div class="price-head reveal">
+          <span class="eyebrow">PRICING</span>
+          <h2 class="section-title">Per bag. Any city.<br><em>No kg calculations.</em></h2>
+          <p class="lead">We price by bag — the way you think. Pick up a bag, pay for a bag.</p>
+          <div class="addons reveal delay-2">Add-ons: <span style="color:var(--body)">Professional packaging (₹200–500/bag)</span> · <span style="color:var(--body)">Transit insurance (2–3% declared value)</span> · Corporate monthly billing</div>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card reveal delay-1">
+            <div class="price-top"><span class="price-badge">GO LITE SMART</span><span style="color:var(--muted)">Economy · Standard delivery</span></div>
+            <div class="price-name">Smart</div>
+            <div class="price-value">₹599</div>
+            <div class="price-note">per bag · any city · 48–72 hr delivery</div>
+            <ul class="ticket-list">
+              <li><span>✓</span><span>Secure door-to-door delivery</span></li>
+              <li><span>✓</span><span>Real-time tracking link</span></li>
+              <li><span>✓</span><span>Professional pickup crew</span></li>
+              <li><span>✓</span><span>Branded packaging add-on available</span></li>
+              <li><span>✓</span><span>Ideal for students, families, budget trips</span></li>
+            </ul>
+            <div style="margin-top:20px"><a class="btn btn-secondary" href="https://wa.me/919867694658?text=Book%20Smart">Book Smart →</a></div>
+          </article>
+
+          <article class="price-card reveal delay-2">
+            <div class="price-top"><span class="price-badge">GO LITE LUXE</span><span style="color:var(--am)">⭐ Most loved</span></div>
+            <div class="price-name">Luxe</div>
+            <div class="price-value">₹1,599</div>
+            <div class="price-note">per bag · any city · same or next day priority</div>
+            <ul class="ticket-list">
+              <li><span>✓</span><span>Priority pickup &amp; delivery</span></li>
+              <li><span>✓</span><span>Premium packaging included</span></li>
+              <li><span>✓</span><span>Insurance coverage available</span></li>
+              <li><span>✓</span><span>Dedicated support line</span></li>
+              <li><span>✓</span><span>Ideal for business, NRIs, weddings</span></li>
+            </ul>
+            <div style="margin-top:20px"><a class="btn btn-primary" href="https://wa.me/919867694658?text=Book%20Luxe">Book Luxe →</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="testi" class="section" style="background:var(--f1)">
+      <div class="shell testi-layout">
+        <div class="testi-head reveal">
+          <span class="eyebrow">WHAT TRAVELERS SAY</span>
+          <h2 class="section-title">The moment you try it,<br><em>you never go back.</em></h2>
+        </div>
+
+        <div class="carousel reveal delay-2">
+          <div class="carousel-track">
+            <article class="slide">
+              <div class="stars">★★★★★</div>
+              <blockquote>"Finally traveled without fighting the baggage belt. Bags were already at my hotel when I arrived. This is how travel should feel."</blockquote>
+              <footer><strong>Rohit S.</strong><span>Mumbai → Delhi NCR</span><span>Smart</span></footer>
+            </article>
+            <article class="slide">
+              <div class="stars">★★★★★</div>
+              <blockquote>"We traveled with 4 kids and zero suitcases in hand. Everyone was shocked to see us walking through the airport so freely. Never going back."</blockquote>
+              <footer><strong>Priya &amp; Nikhil M.</strong><span>Mumbai → Bangalore · family of 6</span><span>Smart</span></footer>
+            </article>
+            <article class="slide">
+              <div class="stars">★★★★★</div>
+              <blockquote>"As someone who travels every week for work, Go Lite Luxe has changed my life. Priority pickup, next-day delivery, bags never late. Worth every rupee."</blockquote>
+              <footer><strong>Arjun K.</strong><span>Mumbai → Pune · weekly business traveler</span><span>Luxe</span></footer>
+            </article>
+          </div>
+          <div class="carousel-dots"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="neat" class="section">
+      <div class="shell neat-layout">
+        <div class="neat-head reveal">
+          <span class="eyebrow">WHY GO LITE WORKS</span>
+          <h2 class="section-title">Four <em>unbreakable</em> commitments.</h2>
+          <p class="lead">We call it NEAT — every decision maps back to one of these four pillars.</p>
+        </div>
+
+        <div class="neat-stage reveal delay-2">
+          <div class="neat-center">NEAT</div>
+          <article class="neat-card n">
+            <strong>N</strong>
+            <h3>Network</h3>
+            <p>Powered by Drivaa RUN. Every new city makes every existing route stronger.</p>
+          </article>
+          <article class="neat-card e">
+            <strong>E</strong>
+            <h3>Experience</h3>
+            <p>Branded crew. Premium packaging. Real tracking. Every touchpoint confirms your choice.</p>
+          </article>
+          <article class="neat-card a">
+            <strong>A</strong>
+            <h3>Accessibility</h3>
+            <p>From ₹599 — less than airlines charge. Book in 2 minutes on WhatsApp, no app needed.</p>
+          </article>
+          <article class="neat-card t">
+            <strong>T</strong>
+            <h3>Trust</h3>
+            <p>On-time rate published. Every bag photographed. Damage claims in under 48 hours.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section" style="background:var(--f1)">
+      <div class="shell contact-layout">
+        <div>
+          <div class="reveal">
+            <span class="eyebrow">GET IN TOUCH</span>
+            <h2 class="section-title">We're a WhatsApp<br>message <em>away.</em></h2>
+            <p class="lead">Have a question about your route, a corporate enquiry, or just want to know how it works? Reach us anytime — we respond within minutes during business hours.</p>
+          </div>
+
+          <div class="contact-stack" style="margin-top:24px">
+            <a class="contact-card reveal delay-1" href="https://wa.me/919867694658">
+              <div class="contact-icon">✆</div>
+              <div><h3>+91 9867694658</h3><p>Booking, queries, corporate — all in one chat</p></div>
+              <div style="color:var(--g)">→</div>
+            </a>
+            <a class="contact-card reveal delay-2" href="mailto:golite@drivaa.run">
+              <div class="contact-icon">✉</div>
+              <div><h3>golite@drivaa.run</h3><p>Corporate accounts, partnerships, general queries</p></div>
+              <div style="color:var(--muted)">→</div>
+            </a>
+            <div class="contact-card reveal delay-3">
+              <div class="contact-icon">⌖</div>
+              <div><h3>Mumbai, India</h3><p>Powered by Drivaa RUN · Pilot stage 2025</p></div>
+              <div></div>
+            </div>
+            <div class="panel" style="padding:16px 18px;border-radius:18px;color:var(--gd);background:var(--gl)">
+              <strong>Response time:</strong> Within the hour on WhatsApp · Mon–Sat 9am–8pm IST
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form reveal delay-2">
+          <div class="eyebrow">SEND US A MESSAGE</div>
+          <h2 class="section-title" style="font-size:2.2rem">Quick enquiry — we respond <em>within the hour.</em></h2>
+          <form onsubmit="handleEnquiry(event)">
+            <div class="form-grid">
+              <div class="field">
+                <label>YOUR NAME</label>
+                <input type="text" id="eq-name" placeholder="Priya Mehta" required>
+              </div>
+              <div class="field">
+                <label>WHATSAPP / PHONE</label>
+                <input type="tel" id="eq-phone" placeholder="+91 98765 43210" required>
+              </div>
+              <div class="field">
+                <label>ENQUIRY TYPE</label>
+                <select id="eq-type">
+                  <option value="">Select one…</option>
+                  <option>Booking a pickup</option>
+                  <option>Corporate / bulk enquiry</option>
+                  <option>Route availability</option>
+                  <option>Partnership / hotel</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>ROUTE (if booking)</label>
+                <input type="text" id="eq-route" placeholder="Mumbai → Delhi NCR">
+              </div>
+              <div class="field full">
+                <label>MESSAGE</label>
+                <textarea id="eq-msg" placeholder="Tell us anything — number of bags, dates, special requirements…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <span class="form-note">Replies on WhatsApp · within the hour</span>
+              <button class="btn btn-primary" id="eq-btn" type="submit">Send via WhatsApp</button>
+            </div>
+            <div id="eq-confirm" style="display:none;margin-top:14px;padding:12px 16px;border-radius:14px;background:var(--gl);color:var(--gd)">✓ Opening WhatsApp with your message pre-filled — just hit send!</div>
+          </form>
+
+          <div class="city-row">
+            <div class="eyebrow">WHERE WE OPERATE</div>
+            <h2 class="section-title" style="font-size:2rem">Wherever India travels, <em>we're there.</em></h2>
+            <div class="city-grid">
+              <span class="city-pill">Mumbai</span>
+              <span class="city-pill">Delhi NCR</span>
+              <span class="city-pill">Bangalore</span>
+              <span class="city-pill">Pune</span>
+              <span class="city-pill">Kolkata</span>
+              <span class="city-pill">Ahmedabad</span>
+              <span class="city-pill">Gurgaon</span>
+              <span class="city-pill">Noida</span>
+              <span class="city-pill">+ More coming soon</span>
+            </div>
+            <p class="lead" style="margin-top:18px"><strong style="color:var(--gd)">Not sure if we serve your route?</strong> Message us at <a href="https://wa.me/919867694658" style="color:var(--g);text-decoration:none">+91 9867694658</a> — we'll confirm instantly. New corridors added every few weeks.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="shell">
+        <div class="cta-band reveal">
+          <div class="eyebrow" style="color:var(--g);justify-content:center">READY WHEN YOU ARE</div>
+          <h2>Still carrying bags?<br>There's a <em>smarter</em> way <strong>to travel.</strong></h2>
+          <p>Book in 2 minutes. First time? Message us and we'll walk you through every step personally.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Book">Book on WhatsApp</a>
+            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="https://wa.me/919867694658?text=Corporate%20enquiry">Corporate enquiry</a>
+            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="tel:+919867694658">Call us</a>
+          </div>
+          <div class="cta-meta">golite@drivaa.run · Mumbai · Powered by Drivaa RUN · 2025</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-row">
+      <div class="footer-brand">
+        <img id="footer-logo" src="assets/go-lite-mark-256w.png" srcset="assets/go-lite-mark-128w.png 128w, assets/go-lite-mark-256w.png 256w" sizes="38px" width="256" height="285" alt="Go Lite" decoding="async">
+        <span>Go Lite · Powered by Drivaa RUN</span>
+      </div>
+      <div class="footer-links">
+        <a href="mailto:golite@drivaa.run">golite@drivaa.run</a>
+        <a href="https://wa.me/919867694658">WhatsApp</a>
+        <a href="#corporate">Corporate</a>
+        <a href="#tiers">Pricing</a>
+      </div>
+      <span style="color:var(--muted);font-size:.8rem">Mumbai · India · 2025</span>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="https://wa.me/919867694658?text=Book">+91 98676 94658</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach((entry)=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el)=>observer.observe(el));
+
+function initHeroLogoMotion(){
+  if(!window.gsap) return;
+  const wrap = document.getElementById('hero-logo-wrap');
+  if(!wrap) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(window.matchMedia('(pointer: coarse)').matches) return;
+
+  wrap.addEventListener('mousemove', (e)=>{
+    const r = wrap.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    gsap.to(wrap, {
+      rotationY: x * 9,
+      rotationX: -y * 6,
+      transformPerspective: 880,
+      duration: 0.48,
+      ease: 'power2.out',
+      overwrite: 'auto'
+    });
+  });
+  wrap.addEventListener('mouseleave', ()=>{
+    gsap.to(wrap, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.85,
+      ease: 'elastic.out(1, .55)'
+    });
+  });
+}
+
+function initPainBelt(){
+  if(!window.gsap) return;
+  const pulse = document.getElementById('pain-pulse');
+  const traveler = document.getElementById('pain-traveler');
+  const avatar = document.getElementById('pain-avatar');
+  const meter = document.getElementById('pain-meter-fill');
+  const checkpoints = [...document.querySelectorAll('.pain-checkpoint')];
+  const loads = [...document.querySelectorAll('.pain-load')];
+  if(!pulse || !traveler || !avatar || !meter || !checkpoints.length) return;
+
+  const stops = ['10%','28%','46%','66%','84%'];
+  gsap.set(traveler, {left:'10%', top:'50%'});
+  gsap.set(pulse, {opacity:.4});
+  gsap.set(loads, {opacity:0, scale:.4, y:8});
+  gsap.set(meter, {width:'16%'});
+
+  const tl = gsap.timeline({repeat:-1, defaults:{ease:'power2.inOut'}});
+
+  stops.forEach((left, index)=>{
+    tl.to(traveler, {left, duration:1.15}, index === 0 ? 0 : '+=.12')
+      .to(pulse, {left, duration:1.15}, '<')
+      .call(()=>{
+        checkpoints.forEach((node, i)=>{
+          node.classList.toggle('resolved', i < index);
+          node.classList.toggle('active', i === index);
+        });
+      })
+      .to(checkpoints[index].querySelector('.ring'), {scale:1.12, duration:.22, yoyo:true, repeat:1, transformOrigin:'50% 50%'}, '<');
+
+    if(index < loads.length){
+      tl.to(loads[index], {opacity:1, scale:1, y:0, duration:.28}, '<+.12');
+    }
+
+    tl.to(meter, {width:`${16 + (index + 1) * 13}%`, duration:.26}, '<')
+      .to(avatar, {rotation:index % 2 === 0 ? -4 : 4, duration:.14, yoyo:true, repeat:1, transformOrigin:'50% 50%'}, '<');
+  });
+
+  tl.to(avatar, {scale:1.08, boxShadow:'0 0 0 14px rgba(123,224,195,0.14), 0 18px 36px rgba(0,0,0,.22)', duration:.5})
+    .to(checkpoints.map((node)=>node.querySelector('.ring')), {
+      backgroundColor:'rgba(30,139,109,0.22)',
+      borderColor:'rgba(123,224,195,0.4)',
+      boxShadow:'0 0 0 10px rgba(123,224,195,0.12)',
+      duration:.5,
+      stagger:.06
+    }, '<')
+    .to(loads, {y:-34, opacity:0, scale:.3, duration:.5, stagger:.06}, '<')
+    .to(meter, {width:'12%', duration:.55}, '<')
+    .to(traveler, {left:'94%', duration:.85, ease:'power3.in'}, '<+.08')
+    .to(pulse, {left:'94%', opacity:0, duration:.85, ease:'power3.in'}, '<')
+    .call(()=>{
+      checkpoints.forEach((node)=>node.classList.remove('active','resolved'));
+    })
+    .set(traveler, {left:'10%'})
+    .set(pulse, {left:'10%', opacity:.4})
+    .set(avatar, {clearProps:'rotation,scale,boxShadow'})
+    .set(loads, {opacity:0, scale:.4, y:8})
+    .set(meter, {width:'16%'});
+}
+
+function initCorporateMoneyStacks(){
+  if(!window.gsap) return;
+  const bars = [
+    {selector:'.chart-bar.air', fillScale:1, noteOffset:18},
+    {selector:'.chart-bar.gl', fillScale:1, noteOffset:16}
+  ];
+
+  bars.forEach((item)=>{
+    const bar = document.querySelector(item.selector);
+    if(!bar) return;
+    const fill = bar.querySelector('.chart-bar-fill');
+    const notes = [...bar.querySelectorAll('.money-note')];
+    if(!fill || !notes.length) return;
+
+    gsap.set(fill, {scaleY:.08, transformOrigin:'bottom'});
+    gsap.set(notes, {
+      y:46,
+      x:(i)=> i % 2 === 0 ? -5 : 5,
+      opacity:0,
+      rotation:0,
+      transformOrigin:'50% 50%'
+    });
+
+    const tl = gsap.timeline({repeat:-1, repeatDelay:.45});
+    tl.to(fill, {scaleY:item.fillScale, duration:1.05, ease:'power2.out'});
+
+    notes.forEach((note, index)=>{
+      tl.to(note, {
+        y:-(index * item.noteOffset),
+        x:index % 2 === 0 ? -7 : 7,
+        rotation:(index % 2 === 0 ? -4 : 4),
+        opacity:1,
+        duration:.24,
+        ease:'back.out(1.4)'
+      }, 0.3 + index * 0.12);
+    });
+
+    tl.to({}, {duration:1.15})
+      .to(notes, {
+        y:'-=18',
+        opacity:0,
+        duration:.28,
+        stagger:.05,
+        ease:'power2.in'
+      })
+      .to(fill, {scaleY:.08, duration:.42, ease:'power2.in'}, '<');
+  });
+}
+
+const THEME_PREF_KEY = 'golite-theme-pref';
+const themeButtons = document.querySelectorAll('.theme-switch button');
+
+function getAutoTheme(){
+  const h = new Date().getHours();
+  return (h >= 6 && h < 19) ? 'verdant' : 'ivory';
+}
+
+function resolveThemeName(){
+  const pref = localStorage.getItem(THEME_PREF_KEY);
+  if (pref === null || pref === 'auto') return getAutoTheme();
+  return pref;
+}
+
+function applyTheme(){
+  document.body.dataset.theme = resolveThemeName();
+}
+
+function syncThemeButtons(){
+  const pref = localStorage.getItem(THEME_PREF_KEY) ?? 'auto';
+  themeButtons.forEach((button)=>button.classList.toggle('active', button.dataset.theme === pref));
+}
+
+themeButtons.forEach((button)=>{
+  button.addEventListener('click', ()=>{
+    localStorage.setItem(THEME_PREF_KEY, button.dataset.theme);
+    applyTheme();
+    syncThemeButtons();
+  });
+});
+
+applyTheme();
+syncThemeButtons();
+setInterval(()=>{
+  if ((localStorage.getItem(THEME_PREF_KEY) ?? 'auto') === 'auto') applyTheme();
+}, 60000);
+
+function handleEnquiry(e){
+  e.preventDefault();
+  const name = document.getElementById('eq-name').value.trim();
+  const phone = document.getElementById('eq-phone').value.trim();
+  const type = document.getElementById('eq-type').value;
+  const route = document.getElementById('eq-route').value.trim();
+  const msg = document.getElementById('eq-msg').value.trim();
+  const text = `Hi Go Lite! 👋\nName: ${name}\nPhone: ${phone}\nEnquiry: ${type}${route ? '\nRoute: ' + route : ''}\n${msg ? 'Message: ' + msg : ''}`.trim();
+  document.getElementById('eq-confirm').style.display='block';
+  document.getElementById('eq-btn').textContent='Opening WhatsApp…';
+  setTimeout(()=>{window.open('https://wa.me/919867694658?text='+encodeURIComponent(text),'_blank');},500);
+}
+
+initHeroLogoMotion();
+initPainBelt();
+initCorporateMoneyStacks();
+</script>
+</body>
+</html>
