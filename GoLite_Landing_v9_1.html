@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Go Lite — Carry Memories Not Baggage.</title>
 <link rel="icon" href="assets/go-lite-mark-128w.png" type="image/png" sizes="128x128">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&amp;family=DM+Sans:wght@300;400;500;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 :root{
-  --shell:min(1220px, calc(100vw - 32px));
+  --shell:min(1220px, calc(100% - 32px));
   --radius-xl:34px;
   --radius-lg:24px;
   --radius-md:18px;
@@ -20,7 +21,11 @@
 *::before,
 *::after{box-sizing:border-box}
 
-html{scroll-behavior:smooth}
+html{
+  scroll-behavior:smooth;
+  overflow-x:hidden;
+  max-width:100%;
+}
 
 body{
   margin:0;
@@ -28,6 +33,7 @@ body{
   background:var(--f0);
   color:var(--ch);
   overflow-x:hidden;
+  max-width:100%;
   transition:background .45s ease,color .45s ease;
 }
 
@@ -103,8 +109,13 @@ body::after{
   background:radial-gradient(circle,var(--hero-glow-2) 0%,transparent 70%);
 }
 
-.page{position:relative;z-index:1}
-.shell{width:var(--shell);margin:0 auto}
+.page{
+  position:relative;
+  z-index:1;
+  overflow-x:hidden;
+  max-width:100%;
+}
+.shell{width:var(--shell);margin:0 auto;max-width:100%}
 
 .reveal{
   opacity:0;
@@ -170,40 +181,69 @@ body::after{
 .topbar{
   position:sticky;
   top:0;
-  z-index:30;
+  z-index:50;
+  padding-top:env(safe-area-inset-top, 0px);
   background:color-mix(in srgb, var(--f0) 82%, transparent);
   backdrop-filter:blur(18px);
   border-bottom:1px solid var(--rule);
 }
 
 .nav-shell{
-  min-height:84px;
-  display:flex;
+  min-height:64px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
   align-items:center;
-  justify-content:space-between;
-  gap:18px;
+  gap:12px 20px;
 }
 
-.brand{
+.nav-brand{
+  grid-column:1;
+  justify-self:start;
   display:flex;
   align-items:center;
-  gap:14px;
+  min-width:0;
+  text-decoration:none;
+  line-height:0;
 }
 
-.brand img{
-  width:50px;
-  height:50px;
+.nav-brand:focus-visible{
+  outline:2px solid var(--g);
+  outline-offset:4px;
+  border-radius:8px;
+}
+
+.nav-wordmark{
+  display:block;
+  height:34px;
+  width:auto;
+  max-width:min(220px,36vw);
   object-fit:contain;
-  border-radius:16px;
-  border:1px solid var(--rule);
-  background:var(--wh);
-  padding:8px;
+  object-position:left center;
+  transform-origin:left center;
+  animation:navLogoFloat 4.8s ease-in-out infinite;
+  filter:drop-shadow(0 4px 10px color-mix(in srgb, var(--g) 18%, transparent));
+  transition:filter .24s ease, transform .24s ease;
 }
 
-.brand-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.55rem;
-  color:var(--blk);
+.nav-brand:hover .nav-wordmark{
+  filter:drop-shadow(0 8px 16px color-mix(in srgb, var(--g) 28%, transparent));
+  transform:translateY(-1px) scale(1.01);
+}
+
+@keyframes navLogoFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
+
+.site-nav{
+  display:flex;
+  flex:none;
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+  min-width:0;
+  grid-column:2;
+  justify-self:center;
 }
 
 .nav-links{
@@ -223,10 +263,329 @@ body::after{
 
 .nav-links a:hover{color:var(--blk)}
 
+.nav-menu-themes{
+  display:none;
+}
+
+.nav-menu-themes .theme-switch{
+  flex-wrap:wrap;
+  justify-content:flex-start;
+}
+
 .nav-actions{
   display:flex;
   align-items:center;
   gap:12px;
+  flex-shrink:0;
+  grid-column:3;
+  justify-self:end;
+  min-width:0;
+}
+
+.nav-toggle{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  width:46px;
+  height:46px;
+  padding:0;
+  border:1px solid var(--rule);
+  border-radius:14px;
+  background:var(--surface);
+  cursor:pointer;
+  color:var(--blk);
+}
+
+.mobile-nav-trigger{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  width:46px;
+  height:46px;
+  border:1px solid var(--rule);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--blk);
+}
+
+@keyframes navBlink{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--g) 0%, transparent)}
+  50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--g) 28%, transparent)}
+}
+
+.mobile-nav-trigger{
+  animation:navBlink 1.9s ease-in-out infinite;
+}
+
+.nav-toggle span{
+  display:block;
+  width:20px;
+  height:2px;
+  margin:0 auto;
+  background:currentColor;
+  border-radius:2px;
+  transition:transform .25s ease,opacity .25s ease;
+}
+
+body.nav-open .nav-toggle span:nth-child(1){
+  transform:translateY(8px) rotate(45deg);
+}
+body.nav-open .nav-toggle span:nth-child(2){opacity:0}
+body.nav-open .nav-toggle span:nth-child(3){
+  transform:translateY(-8px) rotate(-45deg);
+}
+
+.nav-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:40;
+  background:rgba(0,0,0,.38);
+  opacity:0;
+  transition:opacity .28s ease;
+  pointer-events:none;
+}
+
+.mobile-nav.offcanvas{
+  --bs-offcanvas-width:min(92vw,380px);
+  background:var(--f0);
+  color:var(--ch);
+  border-left:1px solid var(--rule);
+}
+
+.mobile-nav .offcanvas-header{
+  border-bottom:1px solid var(--rule);
+}
+
+.mobile-nav .offcanvas-title{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  color:var(--g);
+}
+
+.mobile-nav-links{
+  display:grid;
+  gap:6px;
+}
+
+.mobile-nav-links a{
+  display:block;
+  padding:12px 8px;
+  border-bottom:1px solid var(--rule);
+  text-decoration:none;
+  color:var(--blk);
+  font-size:1.02rem;
+}
+
+.mobile-nav .theme-switch{
+  margin-top:12px;
+  position:relative;
+  width:100%;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:6px;
+  overflow:hidden;
+  background:
+    radial-gradient(140% 90% at 18% -10%, rgba(255,255,255,.48), transparent 56%),
+    radial-gradient(120% 90% at 86% 120%, color-mix(in srgb, var(--g) 20%, transparent), transparent 62%),
+    color-mix(in srgb, var(--surface) 68%, transparent);
+  border:1px solid color-mix(in srgb, var(--rule) 68%, rgba(255,255,255,.22));
+  border-radius:16px;
+  backdrop-filter:blur(16px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.45),
+    inset 0 -10px 18px rgba(255,255,255,.08),
+    0 12px 28px rgba(0,0,0,.12);
+}
+
+.mobile-nav .theme-switch button{
+  position:relative;
+  z-index:1;
+  flex:1 1 calc(50% - 8px);
+  min-width:0;
+  padding:10px 9px;
+  line-height:1.2;
+  letter-spacing:.09em;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.44), rgba(255,255,255,.20));
+  border:1px solid color-mix(in srgb, var(--rule) 60%, rgba(255,255,255,.35));
+  border-radius:12px;
+  color:var(--blk);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    0 6px 12px rgba(0,0,0,.06);
+}
+
+.mobile-nav .theme-switch button.active{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.58));
+  border-color:color-mix(in srgb, var(--g) 40%, rgba(255,255,255,.45));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.92),
+    0 10px 22px color-mix(in srgb, var(--g) 24%, transparent);
+  color:var(--gd);
+  transform:translateY(-1px);
+}
+
+@media (max-width:1024px){
+  .nav-shell{
+    gap:10px 12px;
+    grid-template-columns:auto minmax(0,1fr) auto;
+  }
+  .nav-wordmark{
+    height:30px;
+    max-width:min(180px,28vw);
+  }
+  .site-nav{
+    gap:16px;
+  }
+  .nav-links{
+    gap:14px;
+  }
+  .nav-links a{
+    font-size:.86rem;
+  }
+  .nav-actions .btn-primary{
+    padding:0 14px;
+    min-height:40px;
+    font-size:.78rem;
+  }
+  .theme-switch--header{
+    display:none;
+  }
+}
+
+@media (max-width:900px){
+  .site-nav{display:none !important}
+  .nav-overlay{display:none !important}
+  .theme-switch--header{display:none !important}
+  .nav-toggle{display:none !important}
+  .mobile-nav-trigger{display:inline-flex}
+  .nav-overlay{display:block}
+  .nav-toggle{display:inline-flex; flex-shrink:0}
+  .nav-shell{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    min-height:56px;
+    flex-wrap:nowrap;
+    width:100%;
+    max-width:100%;
+    padding-inline:8px;
+  }
+  .nav-brand{
+    flex:1 1 auto;
+    min-width:0;
+    grid-column:auto;
+    justify-self:auto;
+    max-width:calc(100% - 68px);
+    margin-left:2px;
+  }
+  .nav-wordmark{
+    height:28px;
+    max-width:min(190px,calc(100vw - 86px));
+  }
+  .nav-actions{
+    gap:8px;
+    flex-shrink:0;
+    grid-column:auto;
+    justify-self:auto;
+    margin-right:2px;
+  }
+  .nav-actions .btn-primary{
+    display:none;
+  }
+  .site-nav{
+    position:fixed;
+    top:max(10px,calc(env(safe-area-inset-top, 0px) + 6px));
+    left:10px;
+    right:10px;
+    bottom:max(10px,calc(env(safe-area-inset-bottom, 0px) + 6px));
+    z-index:70;
+    flex:none;
+    width:auto;
+    max-width:none;
+    max-height:none;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:0;
+    margin:0;
+    padding:20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    background:var(--f0);
+    border:1px solid var(--rule);
+    border-radius:22px;
+    box-shadow:0 20px 52px rgba(0,0,0,.2);
+    display:none;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .28s ease, visibility 0s linear .28s;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    grid-column:auto;
+    justify-self:auto;
+  }
+  body.nav-open{overflow:hidden}
+  body.nav-open .nav-overlay{
+    opacity:1;
+    pointer-events:auto;
+  }
+  body.nav-open .site-nav{
+    display:flex;
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transition:opacity .28s ease, visibility 0s linear 0s;
+  }
+  .site-nav::before{
+    content:"";
+    display:block;
+    width:40px;
+    height:4px;
+    margin:0 auto 14px;
+    border-radius:999px;
+    background:var(--rule);
+    flex-shrink:0;
+  }
+  .nav-links{
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+  }
+  .nav-links li{border-bottom:1px solid var(--rule)}
+  .nav-links a{
+    display:block;
+    padding:16px 4px;
+    font-size:1.05rem;
+    color:var(--blk);
+  }
+  .nav-menu-themes{
+    display:block;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+  }
+  .nav-menu-themes .eyebrow-style{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.2em;
+    color:var(--g);
+    margin-bottom:12px;
+  }
+  .nav-menu-themes .theme-switch{
+    width:100%;
+  }
+  .nav-menu-themes .theme-switch button{
+    flex:1 1 calc(50% - 8px);
+    min-width:0;
+    text-align:center;
+  }
 }
 
 .theme-switch{
@@ -254,6 +613,66 @@ body::after{
   background:var(--wh);
   color:var(--blk);
   box-shadow:0 4px 14px rgba(0,0,0,.08);
+}
+
+@keyframes themeHeaderSweep{
+  0%, 72%, 100%{ transform:translateX(-125%); opacity:0; }
+  75%{ opacity:.72; }
+  90%{ transform:translateX(125%); opacity:0; }
+}
+
+@keyframes themeRingBreathe{
+  0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--g) 0%, transparent), 0 8px 16px rgba(0,0,0,.08); }
+  50%{ box-shadow:0 0 0 7px color-mix(in srgb, var(--g) 24%, transparent), 0 10px 24px rgba(0,0,0,.12); }
+}
+
+@keyframes themeActiveHop{
+  0%,100%{ transform:translateY(0); }
+  40%{ transform:translateY(-2px); }
+  70%{ transform:translateY(-1px); }
+}
+
+@media (min-width:901px){
+  .theme-switch--header{
+    position:relative;
+    overflow:hidden;
+    border-color:color-mix(in srgb, var(--g) 36%, var(--rule));
+    animation:themeRingBreathe 2.4s ease-in-out infinite;
+  }
+  .theme-switch--header::before{
+    content:"THEME";
+    position:absolute;
+    top:-13px;
+    left:14px;
+    padding:0 6px;
+    font-family:'DM Mono',monospace;
+    font-size:9px;
+    letter-spacing:.18em;
+    color:var(--g);
+    background:var(--f0);
+    line-height:1.2;
+  }
+  .theme-switch--header::after{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:42%;
+    background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,.82) 50%,transparent 100%);
+    pointer-events:none;
+    transform:translateX(-125%);
+    animation:themeHeaderSweep 4.2s ease-in-out infinite;
+  }
+  .theme-switch--header button{
+    transition:transform .22s ease, box-shadow .22s ease, background .22s ease;
+  }
+  .theme-switch--header button.active{
+    animation:themeActiveHop 1.8s ease-in-out infinite;
+    box-shadow:0 10px 20px color-mix(in srgb, var(--g) 28%, transparent);
+  }
+  .theme-switch--header button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 12px 24px color-mix(in srgb, var(--g) 22%, transparent);
+  }
 }
 
 .btn{
@@ -549,7 +968,7 @@ body::after{
 .tagline-row p span{color:var(--g)}
 
 .section{
-  padding:92px 0;
+  padding:25px 0;
 }
 
 .segments-layout{
@@ -567,13 +986,43 @@ body::after{
 .testi-head,
 .neat-head{padding:8px 0}
 
+.segments-carousel{
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+}
+
 .segments-track{
-  display:grid;
+  display:flex;
+  flex-direction:row;
   gap:14px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-behavior:smooth;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline:10px;
+  padding:2px 2px 14px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  overscroll-behavior-x:contain;
+}
+
+.segments-carousel-hint{
+  display:none;
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+  color:var(--muted);
+  text-align:center;
 }
 
 .segment-card{
   position:relative;
+  flex:0 0 min(420px,calc(100% - 12px));
+  max-width:min(420px,calc(100% - 24px));
+  scroll-snap-align:center;
   padding:24px 24px 24px 84px;
   border-radius:26px;
   border:1px solid var(--rule);
@@ -632,9 +1081,39 @@ body::after{
   align-items:start;
 }
 
-.pain-moments{
-  display:grid;
-  gap:12px;
+/* Only the left column: keeps the carousel from blowing out the grid and affecting pain-visual / pain-stage */
+.pain-layout > .pain-intro{
+  min-width:0;
+  max-width:100%;
+}
+
+/* Carousel lives only under .pain-intro — never target .pain-layout or .pain-visual */
+.pain-intro .pain-moments-carousel{
+  margin-top:24px;
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+}
+
+.pain-intro .pain-moments-track{
+  display:flex;
+  flex-direction:row;
+  gap:14px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-behavior:smooth;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline:10px;
+  padding:2px 2px 14px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  overscroll-behavior-x:contain;
+}
+
+.pain-intro .pain-moments-track .pain-card{
+  flex:0 0 min(420px,calc(100% - 12px));
+  max-width:min(420px,calc(100% - 24px));
+  scroll-snap-align:center;
 }
 
 .pain-card{
@@ -1054,6 +1533,13 @@ body::after{
   top:112px;
   bottom:196px;
   z-index:2;
+  overflow:hidden;
+}
+
+.pain-arena-inner{
+  position:absolute;
+  inset:0;
+  transform-origin:center center;
 }
 
 .pain-lane{
@@ -1242,15 +1728,62 @@ body::after{
 
 .corporate-layout{
   display:grid;
-  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:20px;
-  align-items:start;
+  align-items:stretch;
 }
 
-.corp-feature-list{
+.corporate-layout > .corp-copy{
+  min-width:0;
+  max-width:100%;
+}
+
+.corp-copy{
   display:grid;
-  gap:12px;
-  margin-top:24px;
+  align-content:start;
+  gap:16px;
+  padding:24px;
+  border:1px solid var(--rule);
+  border-radius:28px;
+  background:var(--wh);
+}
+
+.corp-copy .lead{
+  margin:0;
+}
+
+.corp-copy .corp-feature-carousel{
+  margin-top:0;
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+}
+
+.corp-copy .corp-feature-track{
+  display:flex;
+  flex-direction:row;
+  gap:14px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-behavior:smooth;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline:10px;
+  padding:2px 2px 14px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  overscroll-behavior-x:contain;
+}
+
+.segments-track::-webkit-scrollbar,
+.pain-intro .pain-moments-track::-webkit-scrollbar,
+.corp-copy .corp-feature-track::-webkit-scrollbar{
+  height:6px;
+}
+
+.corp-copy .corp-feature-track .corp-feature{
+  flex:0 0 calc(50% - 8px);
+  max-width:calc(50% - 8px);
+  scroll-snap-align:start;
 }
 
 .corp-feature{
@@ -1289,6 +1822,7 @@ body::after{
 .corp-dashboard{
   display:grid;
   gap:16px;
+  align-content:start;
 }
 
 .corp-chart{
@@ -1298,7 +1832,7 @@ body::after{
   color:#fff;
   position:relative;
   overflow:hidden;
-  min-height:460px;
+  min-height:420px;
 }
 
 .corp-chart::before{
@@ -2570,16 +3104,25 @@ body[data-theme="ivory"] .cta-meta{
 
 .wa-float{
   position:fixed;
-  right:18px;
-  bottom:18px;
+  right:max(10px, env(safe-area-inset-right, 0px));
+  bottom:max(10px, env(safe-area-inset-bottom, 0px));
+  left:auto;
   z-index:28;
-  padding:14px 18px;
+  box-sizing:border-box;
+  width:auto;
+  max-width:min(220px, calc(100% - 24px));
+  padding:10px 14px;
   border-radius:999px;
   background:#25D366;
   color:#fff;
   text-decoration:none;
-  box-shadow:0 16px 30px rgba(37,211,102,.3);
-  font-weight:700;
+  box-shadow:0 12px 24px rgba(37,211,102,.28);
+  font-weight:600;
+  font-size:.78rem;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 @keyframes heroFloat{
@@ -2763,8 +3306,263 @@ body[data-theme="ivory"] .cta-meta{
 }
 
 @media (max-width:760px){
-  .theme-switch,
-  .nav-links{display:none}
+  .site-nav{display:none !important}
+  .nav-overlay{display:none !important}
+  .theme-switch--header{display:none !important}
+  .nav-toggle{display:none !important}
+  .mobile-nav-trigger{display:inline-flex}
+  .theme-switch--header{display:none}
+  .nav-overlay{display:block}
+  .nav-toggle{display:inline-flex; flex-shrink:0}
+  .nav-shell{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    min-height:56px;
+    flex-wrap:nowrap;
+    width:100%;
+    max-width:100%;
+    padding-inline:8px;
+  }
+  .nav-brand{
+    flex:1 1 auto;
+    min-width:0;
+    grid-column:auto;
+    justify-self:auto;
+    max-width:calc(100% - 68px);
+    margin-left:2px;
+  }
+  .nav-wordmark{
+    height:28px;
+    max-width:min(190px,calc(100vw - 86px));
+  }
+  .nav-actions{
+    gap:8px;
+    flex-shrink:0;
+    grid-column:auto;
+    justify-self:auto;
+    margin-right:2px;
+  }
+  .nav-actions .btn-primary{
+    display:none;
+  }
+  .site-nav{
+    position:fixed;
+    top:max(10px,calc(env(safe-area-inset-top, 0px) + 6px));
+    left:10px;
+    right:10px;
+    bottom:max(10px,calc(env(safe-area-inset-bottom, 0px) + 6px));
+    z-index:70;
+    flex:none;
+    width:auto;
+    max-width:none;
+    max-height:none;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:0;
+    margin:0;
+    padding:20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    background:var(--f0);
+    border:1px solid var(--rule);
+    border-radius:22px;
+    box-shadow:0 20px 52px rgba(0,0,0,.2);
+    display:none;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .28s ease, visibility 0s linear .28s;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    grid-column:auto;
+    justify-self:auto;
+  }
+  body.nav-open{overflow:hidden}
+  body.nav-open .nav-overlay{
+    opacity:1;
+    pointer-events:auto;
+  }
+  body.nav-open .site-nav{
+    display:flex;
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transition:opacity .28s ease, visibility 0s linear 0s;
+  }
+  .site-nav::before{
+    content:"";
+    display:block;
+    width:40px;
+    height:4px;
+    margin:0 auto 14px;
+    border-radius:999px;
+    background:var(--rule);
+    flex-shrink:0;
+  }
+  .nav-links{
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+  }
+  .nav-links li{border-bottom:1px solid var(--rule)}
+  .nav-links a{
+    display:block;
+    padding:16px 4px;
+    font-size:1.05rem;
+    color:var(--blk);
+  }
+  .nav-menu-themes{
+    display:block;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+  }
+  .nav-menu-themes .eyebrow-style{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.2em;
+    color:var(--g);
+    margin-bottom:12px;
+  }
+  .nav-menu-themes .theme-switch{
+    width:100%;
+  }
+  .nav-menu-themes .theme-switch button{
+    flex:1 1 calc(50% - 8px);
+    min-width:0;
+    text-align:center;
+  }
+  .reveal{
+    opacity:1;
+    transform:none;
+    transition:none;
+  }
+  .hero-stage{
+    min-height:auto;
+    padding:18px 16px 22px;
+  }
+  .hero-stage-center{
+    min-height:min(52vw,280px);
+    margin-top:14px;
+    padding:16px 12px 20px;
+  }
+  .segments-carousel-hint{display:block}
+  .segments-track{
+    scroll-padding-inline:4px;
+    padding-bottom:10px;
+  }
+  .segments-track .segment-card{
+    flex:0 0 min(88vw,340px);
+    scroll-snap-align:center;
+    max-width:none;
+  }
+  .segment-card:hover{
+    transform:none;
+    box-shadow:none;
+  }
+  .carousel,
+  .slide{
+    min-height:0;
+  }
+  .carousel-track{
+    animation-duration:18s;
+  }
+  .pain-stage{
+    min-height:clamp(440px,94vmin,600px);
+  }
+  .pain-stage::before{
+    inset:14px 14px 132px;
+  }
+  .pain-stage-top{
+    flex-wrap:wrap;
+    left:14px;
+    right:14px;
+    top:16px;
+    gap:12px;
+  }
+  .pain-stage-top > div:first-child{
+    flex:1 1 200px;
+    min-width:0;
+  }
+  .pain-stage-top strong{font-size:.92rem}
+  .pain-stage-top span{font-size:.78rem}
+  .pain-meter{
+    min-width:0;
+    flex:1 1 140px;
+    max-width:100%;
+  }
+  .pain-arena{
+    left:0;
+    right:0;
+    top:108px;
+    bottom:148px;
+    overflow:hidden;
+    padding:0;
+    box-sizing:border-box;
+  }
+  .pain-arena-inner{
+    transform:scale(0.86);
+    transform-origin:center center;
+  }
+  .pain-traveler{
+    width:48px;
+    height:48px;
+  }
+  .pain-avatar{
+    width:48px;
+    height:48px;
+  }
+  .pain-avatar::before{
+    top:8px;
+    width:10px;
+    height:10px;
+  }
+  .pain-avatar::after{
+    bottom:8px;
+    width:20px;
+    height:16px;
+    border-radius:12px 12px 10px 10px;
+  }
+  .pain-pulse::after{
+    width:52px;
+    height:52px;
+  }
+  .pain-pulse::before{
+    width:14px;
+    height:14px;
+  }
+  .pain-summary{
+    left:10px;
+    right:10px;
+    bottom:8px;
+    padding:10px 12px;
+    border-radius:18px;
+  }
+  .pain-summary strong{
+    font-size:clamp(1rem,3.8vw,1.25rem);
+    line-height:1.2;
+  }
+  .pain-summary span{
+    font-size:.78rem;
+    line-height:1.45;
+    margin-top:4px;
+  }
+  .pain-checkpoint .ring{
+    width:36px;
+    height:36px;
+    font-size:9px;
+  }
+  .pain-checkpoint label{
+    font-size:7px;
+    letter-spacing:.1em;
+    top:48px;
+    max-width:56px;
+    white-space:normal;
+    text-align:center;
+    line-height:1.2;
+  }
   .hero-stats,
   .pricing-grid,
   .form-grid,
@@ -2777,18 +3575,115 @@ body[data-theme="ivory"] .cta-meta{
   .chart-panel.ring{padding:18px}
   .chart-bars{min-height:220px}
   .ring-wrap{width:min(100%,220px)}
+  .pain-intro .pain-moments-track .pain-card{
+    flex:0 0 min(88vw,360px);
+    max-width:none;
+    grid-template-columns:52px 1fr;
+    gap:12px;
+    padding:18px;
+  }
+  .pain-intro .pain-moments-track .pain-index{
+    width:52px;
+    height:52px;
+    font-size:.75rem;
+    border-radius:16px;
+  }
+  .corp-copy .corp-feature-track .corp-feature{
+    flex:0 0 min(88vw,360px);
+    max-width:none;
+    grid-template-columns:52px 1fr;
+    gap:12px;
+    padding:18px;
+  }
+  .corp-copy .corp-feature-track .corp-icon{
+    width:52px;
+    height:52px;
+    font-size:.85rem;
+    border-radius:16px;
+  }
   .segment-card,
-  .pain-card,
   .how-step,
   .contact-card{grid-template-columns:1fr}
-  .segment-card{padding-left:24px}
-  .segment-card::before,
-  .pain-index,
+  .segment-card{padding:22px 22px 22px 76px}
   .how-num{position:relative;left:auto;top:auto}
-  .neat-stage{min-height:auto;padding:24px;display:grid;gap:14px}
-  .neat-center{position:relative;inset:auto;transform:none;margin:0 auto}
-  .neat-card{position:relative;width:auto;top:auto;left:auto;right:auto;bottom:auto}
-  .wa-float{left:16px;right:16px;text-align:center}
+  .neat-stage{
+    min-height:0;
+    padding:28px 12px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:stretch;
+    overflow:hidden;
+    width:100%;
+    max-width:100%;
+  }
+  .neat-stage::before,
+  .neat-stage::after{
+    display:none;
+  }
+  .neat-center{
+    position:relative;
+    inset:auto;
+    margin:8px auto 6px;
+    width:min(136px,38vw);
+    height:min(136px,38vw);
+    font-size:clamp(2.2rem,9vw,3rem);
+    flex-shrink:0;
+    animation:coinFloat 5.2s ease-in-out infinite;
+    top: 58px;
+  }
+  .neat-card.n,
+  .neat-card.e,
+  .neat-card.a,
+  .neat-card.t{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  .neat-card{
+    padding:14px 14px;
+  }
+  .neat-card strong{font-size:1.5rem}
+  .wa-float{
+    max-width:min(200px,calc(100% - 20px));
+    padding:9px 12px;
+    font-size:.72rem;
+    text-align:center;
+  }
+  .page{
+    padding-bottom:max(56px, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width:380px){
+  .nav-actions .btn-primary{
+    padding:0 10px;
+    font-size:.72rem;
+  }
+}
+
+@media (max-width:430px){
+  .nav-actions .btn-primary{
+    display:none;
+  }
+  .nav-brand{
+    max-width:calc(100% - 60px);
+  }
+}
+
+@media (max-width:520px){
+  .nav-actions .btn-primary{
+    display:none;
+  }
+  .nav-brand{
+    max-width:calc(100% - 60px);
+  }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -2809,30 +3704,70 @@ body[data-theme="ivory"] .cta-meta{
 <div class="page">
   <header class="topbar">
     <div class="shell nav-shell">
-      <a class="brand" href="#top" style="text-decoration:none">
-        <img id="nav-logo" src="assets/go-lite-mark-512w.png" srcset="assets/go-lite-mark-256w.png 256w, assets/go-lite-mark-512w.png 512w" sizes="50px" width="512" height="569" alt="Go Lite" decoding="async">
-        <div class="brand-name">Go Lite</div>
+      <a class="nav-brand" href="#top" aria-label="Go Lite — home">
+        <img class="nav-wordmark" src="assets/go-lite-wordmark-640w.png" srcset="assets/go-lite-wordmark-360w.png 360w, assets/go-lite-wordmark-480w.png 480w, assets/go-lite-wordmark-640w.png 640w" sizes="(max-width:760px) 200px, 220px" width="800" height="305" alt="Go Lite" decoding="async">
       </a>
 
-      <ul class="nav-links">
-        <li><a href="#pain">The problem</a></li>
-        <li><a href="#how">How it works</a></li>
-        <li><a href="#corporate">Corporate</a></li>
-        <li><a href="#tiers">Pricing</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+      <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
+        <ul class="nav-links">
+          <li><a href="#pain">The problem</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#corporate">Corporate</a></li>
+          <li><a href="#tiers">Pricing</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-menu-themes">
+          <div class="eyebrow-style">THEME</div>
+          <div class="theme-switch">
+            <button type="button" data-theme="auto" class="active" title="Match time of day">AUTO</button>
+            <button type="button" data-theme="obsidian">BLACK GOLD</button>
+            <button type="button" data-theme="verdant">WHITE GREEN</button>
+            <button type="button" data-theme="ivory">IVORY FOREST</button>
+          </div>
+        </div>
+      </nav>
 
       <div class="nav-actions">
-        <div class="theme-switch">
+        <div class="theme-switch theme-switch--header">
           <button type="button" data-theme="auto" class="active" title="Match time of day">AUTO</button>
           <button type="button" data-theme="obsidian">BLACK GOLD</button>
           <button type="button" data-theme="verdant">WHITE GREEN</button>
           <button type="button" data-theme="ivory">IVORY FOREST</button>
         </div>
-        <a class="btn btn-primary" href="https://wa.me/919867694658">Book now</a>
+        <a class="btn btn-primary" href="https://wa.me/919967148366">Book now</a>
+        <button type="button" class="mobile-nav-trigger" data-bs-toggle="offcanvas" data-bs-target="#mobileNavModal" aria-controls="mobileNavModal" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
+
+  <div class="offcanvas offcanvas-end mobile-nav" tabindex="-1" id="mobileNavModal" aria-labelledby="mobileNavModalLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mobileNavModalLabel">GO LITE MENU</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <nav class="mobile-nav-links" aria-label="Mobile navigation">
+        <a href="#pain" data-bs-dismiss="offcanvas">The problem</a>
+        <a href="#how" data-bs-dismiss="offcanvas">How it works</a>
+        <a href="#corporate" data-bs-dismiss="offcanvas">Corporate</a>
+        <a href="#tiers" data-bs-dismiss="offcanvas">Pricing</a>
+        <a href="#contact" data-bs-dismiss="offcanvas">Contact</a>
+      </nav>
+      <div class="theme-switch">
+        <button type="button" data-theme="auto" class="active" title="Match time of day">AUTO</button>
+        <button type="button" data-theme="obsidian">BLACK GOLD</button>
+        <button type="button" data-theme="verdant">WHITE GREEN</button>
+        <button type="button" data-theme="ivory">IVORY FOREST</button>
+      </div>
+      <div style="margin-top:14px">
+        <a class="btn btn-primary" href="https://wa.me/919967148366" data-bs-dismiss="offcanvas">Book now</a>
+      </div>
+    </div>
+  </div>
 
   <main id="top">
     <section class="hero">
@@ -2842,7 +3777,7 @@ body[data-theme="ivory"] .cta-meta{
           <h1 class="headline">Your bags travel<br><em>separately.</em><br><strong>You travel free.</strong></h1>
           <p class="lead">We exist for one reason — so your next journey is filled with <strong>memories, not luggage stress.</strong></p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Book">Book on WhatsApp</a>
+            <a class="btn btn-primary" href="https://wa.me/919967148366?text=Book">Book on WhatsApp</a>
             <a class="btn btn-secondary" href="#pain">See what we solve →</a>
           </div>
           <div class="hero-stats">
@@ -2898,37 +3833,40 @@ body[data-theme="ivory"] .cta-meta{
           <p class="lead">Six types of travelers. One thing in common — they chose to make their journey about the experience, not the luggage.</p>
         </div>
 
-        <div class="segments-track">
-          <article class="segment-card reveal delay-1" data-index="01">
-            <h3>Families</h3>
-            <p>School holidays, vacations, family reunions. Managing 4–6 bags alongside kids and elderly parents through airports is exhausting. Go Lite gives families their hands back.</p>
-            <span class="quote">"We actually enjoyed the airport for the first time."</span>
-          </article>
-          <article class="segment-card reveal delay-2" data-index="02">
-            <h3>Frequent business travelers</h3>
-            <p>Traveling 2–4 times a month, paying ₹1,500+ in excess fees each trip. Go Lite is cheaper, faster, and means you arrive ready to work — not worn out from baggage handling.</p>
-            <span class="quote">"I check in for flights in under 5 minutes now."</span>
-          </article>
-          <article class="segment-card reveal delay-3" data-index="03">
-            <h3>Students relocating</h3>
-            <p>Moving to a new city for college or a job? Your life's belongings don't fit in carry-on. Go Lite sends everything ahead — you travel light, bags arrive at your new home.</p>
-            <span class="quote">"My bags arrived before I did. Best decision ever."</span>
-          </article>
-          <article class="segment-card reveal delay-1" data-index="04">
-            <h3>Senior citizens</h3>
-            <p>Traveling with health conditions or mobility issues means every extra kilogram matters. Go Lite removes the physical burden entirely — elderly travelers move through airports without strain.</p>
-            <span class="quote">"My parents traveled alone for the first time in years."</span>
-          </article>
-          <article class="segment-card reveal delay-2" data-index="05">
-            <h3>NRI visitors</h3>
-            <p>Bringing gifts, clothes, and memories back from abroad means airline baggage limits are constantly exceeded. Go Lite ships your bags without the surcharge or the stress.</p>
-            <span class="quote">"I brought everything I wanted. No compromises."</span>
-          </article>
-          <article class="segment-card reveal delay-3" data-index="06">
-            <h3>Destination weddings</h3>
-            <p>Wedding outfits, gifts, and décor don't fit in cabin bags. And you can't check in a suitcase of irreplaceable lehengas. Go Lite moves everything — safely, on priority.</p>
-            <span class="quote">"The wedding attire arrived pressed and perfect."</span>
-          </article>
+          <div class="segments-carousel">
+            <div class="segments-track" id="segments-track">
+            <article class="segment-card reveal delay-1" data-index="01">
+              <h3>Families</h3>
+              <p>School holidays, vacations, family reunions. Managing 4–6 bags alongside kids and elderly parents through airports is exhausting. Go Lite gives families their hands back.</p>
+              <span class="quote">"We actually enjoyed the airport for the first time."</span>
+            </article>
+            <article class="segment-card reveal delay-2" data-index="02">
+              <h3>Frequent business travelers</h3>
+              <p>Traveling 2–4 times a month, paying ₹1,500+ in excess fees each trip. Go Lite is cheaper, faster, and means you arrive ready to work — not worn out from baggage handling.</p>
+              <span class="quote">"I check in for flights in under 5 minutes now."</span>
+            </article>
+            <article class="segment-card reveal delay-3" data-index="03">
+              <h3>Students relocating</h3>
+              <p>Moving to a new city for college or a job? Your life's belongings don't fit in carry-on. Go Lite sends everything ahead — you travel light, bags arrive at your new home.</p>
+              <span class="quote">"My bags arrived before I did. Best decision ever."</span>
+            </article>
+            <article class="segment-card reveal delay-1" data-index="04">
+              <h3>Senior citizens</h3>
+              <p>Traveling with health conditions or mobility issues means every extra kilogram matters. Go Lite removes the physical burden entirely — elderly travelers move through airports without strain.</p>
+              <span class="quote">"My parents traveled alone for the first time in years."</span>
+            </article>
+            <article class="segment-card reveal delay-2" data-index="05">
+              <h3>NRI visitors</h3>
+              <p>Bringing gifts, clothes, and memories back from abroad means airline baggage limits are constantly exceeded. Go Lite ships your bags without the surcharge or the stress.</p>
+              <span class="quote">"I brought everything I wanted. No compromises."</span>
+            </article>
+            <article class="segment-card reveal delay-3" data-index="06">
+              <h3>Destination weddings</h3>
+              <p>Wedding outfits, gifts, and décor don't fit in cabin bags. And you can't check in a suitcase of irreplaceable lehengas. Go Lite moves everything — safely, on priority.</p>
+              <span class="quote">"The wedding attire arrived pressed and perfect."</span>
+            </article>
+          </div>
+          <p class="segments-carousel-hint">Swipe for more traveler types →</p>
         </div>
       </div>
     </section>
@@ -2938,27 +3876,29 @@ body[data-theme="ivory"] .cta-meta{
         <div class="pain-intro reveal">
           <span class="eyebrow">THE REAL COST OF TRAVEL TODAY</span>
           <h2 class="section-title">Every trip has <em>five moments</em><br>that exhaust you.</h2>
-          <div class="pain-moments" style="margin-top:24px">
-            <article class="pain-card reveal delay-1">
-              <div class="pain-index">01</div>
-              <div><h3>Getting to the airport</h3><p>You wrestle <strong>3 heavy bags</strong> into an Uber that barely fits them. The driver is irritated. You arrive sweating, already exhausted. With kids or elderly parents? Add 30 minutes and twice the stress.</p></div>
-            </article>
-            <article class="pain-card reveal delay-2">
-              <div class="pain-index">02</div>
-              <div><h3>The check-in queue</h3><p>You stand in a 40-minute queue. The agent says your bag is <strong>3 kg overweight</strong>. That's ₹1,500 you didn't plan for. You repack on the airport floor. Your flight is in 90 minutes.</p></div>
-            </article>
-            <article class="pain-card reveal delay-3">
-              <div class="pain-index">03</div>
-              <div><h3>Managing kids &amp; seniors through terminals</h3><p>Your mother needs a wheelchair. Your 4-year-old is running the wrong way. You have <strong>two trolleys, a pram, and one pair of hands</strong>. This isn't a holiday — it's a military operation.</p></div>
-            </article>
-            <article class="pain-card reveal delay-1">
-              <div class="pain-index">04</div>
-              <div><h3>Waiting at the baggage belt</h3><p>You've landed. You're tired. Now stand at a carousel for another <strong>35 minutes</strong> watching bags go round — hoping yours isn't last, or worse, lost.</p></div>
-            </article>
-            <article class="pain-card reveal delay-2">
-              <div class="pain-index">05</div>
-              <div><h3>The exit from the airport</h3><p>Get bags into a cab, across the city, up the stairs. Your destination wedding starts in <strong>4 hours</strong>. You arrive at the hotel out of breath. This was supposed to be a celebration.</p></div>
-            </article>
+          <div class="pain-moments-carousel">
+            <div class="pain-moments-track" id="pain-moments-track">
+              <article class="pain-card reveal delay-1">
+                <div class="pain-index">01</div>
+                <div><h3>Getting to the airport</h3><p>You wrestle <strong>3 heavy bags</strong> into an Uber that barely fits them. The driver is irritated. You arrive sweating, already exhausted. With kids or elderly parents? Add 30 minutes and twice the stress.</p></div>
+              </article>
+              <article class="pain-card reveal delay-2">
+                <div class="pain-index">02</div>
+                <div><h3>The check-in queue</h3><p>You stand in a 40-minute queue. The agent says your bag is <strong>3 kg overweight</strong>. That's ₹1,500 you didn't plan for. You repack on the airport floor. Your flight is in 90 minutes.</p></div>
+              </article>
+              <article class="pain-card reveal delay-3">
+                <div class="pain-index">03</div>
+                <div><h3>Managing kids &amp; seniors through terminals</h3><p>Your mother needs a wheelchair. Your 4-year-old is running the wrong way. You have <strong>two trolleys, a pram, and one pair of hands</strong>. This isn't a holiday — it's a military operation.</p></div>
+              </article>
+              <article class="pain-card reveal delay-1">
+                <div class="pain-index">04</div>
+                <div><h3>Waiting at the baggage belt</h3><p>You've landed. You're tired. Now stand at a carousel for another <strong>35 minutes</strong> watching bags go round — hoping yours isn't last, or worse, lost.</p></div>
+              </article>
+              <article class="pain-card reveal delay-2">
+                <div class="pain-index">05</div>
+                <div><h3>The exit from the airport</h3><p>Get bags into a cab, across the city, up the stairs. Your destination wedding starts in <strong>4 hours</strong>. You arrive at the hotel out of breath. This was supposed to be a celebration.</p></div>
+              </article>
+            </div>
           </div>
         </div>
 
@@ -2975,19 +3915,21 @@ body[data-theme="ivory"] .cta-meta{
               </div>
             </div>
             <div class="pain-arena" aria-hidden="true">
-              <div class="pain-lane"></div>
-              <div class="pain-checkpoint c1"><div class="ring">01</div><label>AIRPORT</label></div>
-              <div class="pain-checkpoint c2"><div class="ring">02</div><label>QUEUE</label></div>
-              <div class="pain-checkpoint c3"><div class="ring">03</div><label>TERMINAL</label></div>
-              <div class="pain-checkpoint c4"><div class="ring">04</div><label>BELT</label></div>
-              <div class="pain-checkpoint c5"><div class="ring">05</div><label>EXIT</label></div>
-              <div class="pain-pulse" id="pain-pulse"></div>
-              <div class="pain-traveler" id="pain-traveler">
-                <div class="pain-avatar" id="pain-avatar"></div>
-                <div class="pain-load l1"></div>
-                <div class="pain-load l2"></div>
-                <div class="pain-load l3"></div>
-                <div class="pain-load l4"></div>
+              <div class="pain-arena-inner">
+                <div class="pain-lane"></div>
+                <div class="pain-checkpoint c1"><div class="ring">01</div><label>AIRPORT</label></div>
+                <div class="pain-checkpoint c2"><div class="ring">02</div><label>QUEUE</label></div>
+                <div class="pain-checkpoint c3"><div class="ring">03</div><label>TERMINAL</label></div>
+                <div class="pain-checkpoint c4"><div class="ring">04</div><label>BELT</label></div>
+                <div class="pain-checkpoint c5"><div class="ring">05</div><label>EXIT</label></div>
+                <div class="pain-pulse" id="pain-pulse"></div>
+                <div class="pain-traveler" id="pain-traveler">
+                  <div class="pain-avatar" id="pain-avatar"></div>
+                  <div class="pain-load l1"></div>
+                  <div class="pain-load l2"></div>
+                  <div class="pain-load l3"></div>
+                  <div class="pain-load l4"></div>
+                </div>
               </div>
             </div>
             <div class="pain-summary">
@@ -3005,26 +3947,28 @@ body[data-theme="ivory"] .cta-meta{
           <span class="eyebrow">CORPORATE &amp; B2B</span>
           <h2 class="section-title">Your team travels light.<br><strong>Your business</strong> <em>wins.</em></h2>
           <p class="lead">Excess baggage fees silently eat your travel budget. The average company with 50 frequent travelers spends ₹8–25L per year on airline baggage fees alone.</p>
-          <div class="corp-feature-list">
-            <article class="corp-feature reveal delay-1">
-              <div class="corp-icon">₹</div>
-              <div><h3>Consolidated monthly billing</h3><p>One invoice. No per-trip reimbursements. No surprises.</p></div>
-            </article>
-            <article class="corp-feature reveal delay-2">
-              <div class="corp-icon">📊</div>
-              <div><h3>HR travel dashboard</h3><p>Track every bag, every order, every employee. Full visibility.</p></div>
-            </article>
-            <article class="corp-feature reveal delay-3">
-              <div class="corp-icon">🏷</div>
-              <div><h3>Volume pricing — bulk discount off retail</h3><p>Pricing discussed based on volume and frequency.</p></div>
-            </article>
-            <article class="corp-feature reveal delay-1">
-              <div class="corp-icon">⚡</div>
-              <div><h3>Luxe-level service at Smart pricing</h3><p>Every corporate booking gets priority handling.</p></div>
-            </article>
+          <div class="corp-feature-carousel">
+            <div class="corp-feature-track" id="corp-feature-track">
+              <article class="corp-feature reveal delay-1">
+                <div class="corp-icon">₹</div>
+                <div><h3>Consolidated monthly billing</h3><p>One invoice. No per-trip reimbursements. No surprises.</p></div>
+              </article>
+              <article class="corp-feature reveal delay-2">
+                <div class="corp-icon">📊</div>
+                <div><h3>HR travel dashboard</h3><p>Track every bag, every order, every employee. Full visibility.</p></div>
+              </article>
+              <article class="corp-feature reveal delay-3">
+                <div class="corp-icon">🏷</div>
+                <div><h3>Volume pricing — bulk discount off retail</h3><p>Pricing discussed based on volume and frequency.</p></div>
+              </article>
+              <article class="corp-feature reveal delay-1">
+                <div class="corp-icon">⚡</div>
+                <div><h3>Luxe-level service at Smart pricing</h3><p>Every corporate booking gets priority handling.</p></div>
+              </article>
+            </div>
           </div>
           <div style="margin-top:22px">
-            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Corporate%20enquiry">Enquire about Corporate →</a>
+            <a class="btn btn-primary" href="https://wa.me/919967148366?text=Corporate%20enquiry">Enquire about Corporate →</a>
           </div>
         </div>
 
@@ -3205,7 +4149,7 @@ body[data-theme="ivory"] .cta-meta{
               <li><span>✓</span><span>Branded packaging add-on available</span></li>
               <li><span>✓</span><span>Ideal for students, families, budget trips</span></li>
             </ul>
-            <div style="margin-top:20px"><a class="btn btn-secondary" href="https://wa.me/919867694658?text=Book%20Smart">Book Smart →</a></div>
+            <div style="margin-top:20px"><a class="btn btn-secondary" href="https://wa.me/919967148366?text=Book%20Smart">Book Smart →</a></div>
           </article>
 
           <article class="price-card reveal delay-2">
@@ -3220,7 +4164,7 @@ body[data-theme="ivory"] .cta-meta{
               <li><span>✓</span><span>Dedicated support line</span></li>
               <li><span>✓</span><span>Ideal for business, NRIs, weddings</span></li>
             </ul>
-            <div style="margin-top:20px"><a class="btn btn-primary" href="https://wa.me/919867694658?text=Book%20Luxe">Book Luxe →</a></div>
+            <div style="margin-top:20px"><a class="btn btn-primary" href="https://wa.me/919967148366?text=Book%20Luxe">Book Luxe →</a></div>
           </article>
         </div>
       </div>
@@ -3300,9 +4244,9 @@ body[data-theme="ivory"] .cta-meta{
           </div>
 
           <div class="contact-stack" style="margin-top:24px">
-            <a class="contact-card reveal delay-1" href="https://wa.me/919867694658">
+            <a class="contact-card reveal delay-1" href="https://wa.me/919967148366">
               <div class="contact-icon">✆</div>
-              <div><h3>+91 9867694658</h3><p>Booking, queries, corporate — all in one chat</p></div>
+              <div><h3>+91 9967148366</h3><p>Booking, queries, corporate — all in one chat</p></div>
               <div style="color:var(--g)">→</div>
             </a>
             <a class="contact-card reveal delay-2" href="mailto:golite@drivaa.run">
@@ -3375,7 +4319,7 @@ body[data-theme="ivory"] .cta-meta{
               <span class="city-pill">Noida</span>
               <span class="city-pill">+ More coming soon</span>
             </div>
-            <p class="lead" style="margin-top:18px"><strong style="color:var(--gd)">Not sure if we serve your route?</strong> Message us at <a href="https://wa.me/919867694658" style="color:var(--g);text-decoration:none">+91 9867694658</a> — we'll confirm instantly. New corridors added every few weeks.</p>
+            <p class="lead" style="margin-top:18px"><strong style="color:var(--gd)">Not sure if we serve your route?</strong> Message us at <a href="https://wa.me/919967148366" style="color:var(--g);text-decoration:none">+91 9967148366</a> — we'll confirm instantly. New corridors added every few weeks.</p>
           </div>
         </div>
       </div>
@@ -3388,9 +4332,9 @@ body[data-theme="ivory"] .cta-meta{
           <h2>Still carrying bags?<br>There's a <em>smarter</em> way <strong>to travel.</strong></h2>
           <p>Book in 2 minutes. First time? Message us and we'll walk you through every step personally.</p>
           <div class="cta-actions">
-            <a class="btn btn-primary" href="https://wa.me/919867694658?text=Book">Book on WhatsApp</a>
-            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="https://wa.me/919867694658?text=Corporate%20enquiry">Corporate enquiry</a>
-            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="tel:+919867694658">Call us</a>
+            <a class="btn btn-primary" href="https://wa.me/919967148366?text=Book">Book on WhatsApp</a>
+            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="https://wa.me/919967148366?text=Corporate%20enquiry">Corporate enquiry</a>
+            <a class="btn btn-secondary" style="border-color:rgba(255,255,255,.22);color:#fff" href="tel:+919967148366">Call us</a>
           </div>
           <div class="cta-meta">golite@drivaa.run · Mumbai · Powered by Drivaa RUN · 2025</div>
         </div>
@@ -3406,7 +4350,7 @@ body[data-theme="ivory"] .cta-meta{
       </div>
       <div class="footer-links">
         <a href="mailto:golite@drivaa.run">golite@drivaa.run</a>
-        <a href="https://wa.me/919867694658">WhatsApp</a>
+        <a href="https://wa.me/919967148366">WhatsApp</a>
         <a href="#corporate">Corporate</a>
         <a href="#tiers">Pricing</a>
       </div>
@@ -3414,10 +4358,11 @@ body[data-theme="ivory"] .cta-meta{
     </div>
   </footer>
 
-  <a class="wa-float" href="https://wa.me/919867694658?text=Book">+91 98676 94658</a>
+  <a class="wa-float" href="https://wa.me/919967148366?text=Book">+91 99671 48366</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const observer = new IntersectionObserver((entries)=>{
   entries.forEach((entry)=>{
@@ -3461,6 +4406,7 @@ function initHeroLogoMotion(){
 
 function initPainBelt(){
   if(!window.gsap) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const pulse = document.getElementById('pain-pulse');
   const traveler = document.getElementById('pain-traveler');
   const avatar = document.getElementById('pain-avatar');
@@ -3469,9 +4415,13 @@ function initPainBelt(){
   const loads = [...document.querySelectorAll('.pain-load')];
   if(!pulse || !traveler || !avatar || !meter || !checkpoints.length) return;
 
+  // Keep pulse/traveler aligned with checkpoint markers at all sizes.
   const stops = ['10%','28%','46%','66%','84%'];
-  gsap.set(traveler, {left:'10%', top:'50%'});
-  gsap.set(pulse, {opacity:.4});
+  const startLeft = stops[0];
+  const endLeft = '94%';
+
+  gsap.set(traveler, {left:startLeft, top:'50%'});
+  gsap.set(pulse, {opacity:.4, left:startLeft, top:'50%'});
   gsap.set(loads, {opacity:0, scale:.4, y:8});
   gsap.set(meter, {width:'16%'});
 
@@ -3506,13 +4456,13 @@ function initPainBelt(){
     }, '<')
     .to(loads, {y:-34, opacity:0, scale:.3, duration:.5, stagger:.06}, '<')
     .to(meter, {width:'12%', duration:.55}, '<')
-    .to(traveler, {left:'94%', duration:.85, ease:'power3.in'}, '<+.08')
-    .to(pulse, {left:'94%', opacity:0, duration:.85, ease:'power3.in'}, '<')
+    .to(traveler, {left:endLeft, duration:.85, ease:'power3.in'}, '<+.08')
+    .to(pulse, {left:endLeft, opacity:0, duration:.85, ease:'power3.in'}, '<')
     .call(()=>{
       checkpoints.forEach((node)=>node.classList.remove('active','resolved'));
     })
-    .set(traveler, {left:'10%'})
-    .set(pulse, {left:'10%', opacity:.4})
+    .set(traveler, {left:startLeft})
+    .set(pulse, {left:startLeft, top:'50%', opacity:.4})
     .set(avatar, {clearProps:'rotation,scale,boxShadow'})
     .set(loads, {opacity:0, scale:.4, y:8})
     .set(meter, {width:'16%'});
@@ -3520,6 +4470,7 @@ function initPainBelt(){
 
 function initCorporateMoneyStacks(){
   if(!window.gsap) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const bars = [
     {selector:'.chart-bar.air', fillScale:1, noteOffset:18},
     {selector:'.chart-bar.gl', fillScale:1, noteOffset:16}
@@ -3604,6 +4555,127 @@ setInterval(()=>{
   if ((localStorage.getItem(THEME_PREF_KEY) ?? 'auto') === 'auto') applyTheme();
 }, 60000);
 
+function initMobileNav(){
+  const toggle = document.getElementById('nav-toggle');
+  const overlay = document.getElementById('nav-overlay');
+  const nav = document.getElementById('site-nav');
+  if(!toggle || !overlay || !nav) return;
+
+  const mq = window.matchMedia('(max-width: 900px)');
+
+  function setOpen(open){
+    document.body.classList.toggle('nav-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+  }
+
+  function close(){ setOpen(false); }
+
+  toggle.addEventListener('click', ()=>{
+    setOpen(!document.body.classList.contains('nav-open'));
+  });
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') close();
+  });
+  nav.querySelectorAll('a[href^="#"]').forEach((a)=>{
+    a.addEventListener('click', ()=>{ if(mq.matches) close(); });
+  });
+
+  mq.addEventListener('change', (e)=>{
+    if(!e.matches) close();
+  });
+}
+
+initMobileNav();
+
+function initHorizontalCarousel(track, options){
+  if(!track || track.children.length < 2) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const intervalMs = options?.intervalMs ?? 3200;
+  const resumeTouchMs = options?.resumeTouchMs ?? 1800;
+  const resumeScrollMs = options?.resumeScrollMs ?? 2200;
+
+  const cards = [...track.children];
+  let index = 0;
+  let timer = null;
+
+  function getTargetLeft(card){
+    const centered = card.offsetLeft - ((track.clientWidth - card.clientWidth) / 2);
+    const max = Math.max(0, track.scrollWidth - track.clientWidth);
+    return Math.min(Math.max(0, centered), max);
+  }
+
+  function getNearestIndex(){
+    const left = track.scrollLeft;
+    let nearest = 0;
+    let nearestDiff = Infinity;
+    cards.forEach((card, i)=>{
+      const diff = Math.abs(getTargetLeft(card) - left);
+      if(diff < nearestDiff){
+        nearestDiff = diff;
+        nearest = i;
+      }
+    });
+    return nearest;
+  }
+
+  function next(){
+    const nextIndex = (index + 1) % cards.length;
+    const behavior = nextIndex === 0 ? 'auto' : 'smooth';
+    track.scrollTo({ left: getTargetLeft(cards[nextIndex]), behavior });
+    index = nextIndex;
+  }
+
+  function start(){
+    if(timer) return;
+    timer = window.setInterval(next, intervalMs);
+  }
+
+  function stop(){
+    if(timer){
+      window.clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  track.addEventListener('mouseenter', stop);
+  track.addEventListener('mouseleave', start);
+  track.addEventListener('touchstart', stop, { passive: true });
+  track.addEventListener('touchend', () => {
+    window.setTimeout(start, resumeTouchMs);
+  });
+  track.addEventListener('wheel', stop, { passive: true });
+  track.addEventListener('focusin', stop);
+  track.addEventListener('focusout', start);
+
+  let scrollEndTimer;
+  track.addEventListener('scroll', () => {
+    stop();
+    window.clearTimeout(scrollEndTimer);
+    scrollEndTimer = window.setTimeout(() => {
+      index = getNearestIndex();
+      start();
+    }, resumeScrollMs);
+  }, { passive: true });
+
+  start();
+}
+
+function initPainMomentsCarousel(){
+  initHorizontalCarousel(document.getElementById('pain-moments-track'));
+}
+
+function initCorpFeatureCarousel(){
+  initHorizontalCarousel(document.getElementById('corp-feature-track'));
+}
+
+function initSegmentsCarousel(){
+  initHorizontalCarousel(document.getElementById('segments-track'));
+}
+
 function handleEnquiry(e){
   e.preventDefault();
   const name = document.getElementById('eq-name').value.trim();
@@ -3614,12 +4686,15 @@ function handleEnquiry(e){
   const text = `Hi Go Lite! 👋\nName: ${name}\nPhone: ${phone}\nEnquiry: ${type}${route ? '\nRoute: ' + route : ''}\n${msg ? 'Message: ' + msg : ''}`.trim();
   document.getElementById('eq-confirm').style.display='block';
   document.getElementById('eq-btn').textContent='Opening WhatsApp…';
-  setTimeout(()=>{window.open('https://wa.me/919867694658?text='+encodeURIComponent(text),'_blank');},500);
+  setTimeout(()=>{window.open('https://wa.me/919967148366?text='+encodeURIComponent(text),'_blank');},500);
 }
 
 initHeroLogoMotion();
 initPainBelt();
 initCorporateMoneyStacks();
+initSegmentsCarousel();
+initPainMomentsCarousel();
+initCorpFeatureCarousel();
 </script>
 </body>
 </html>
